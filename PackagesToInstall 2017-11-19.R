@@ -1,0 +1,45 @@
+library(devtools)
+
+pkgsToInstall = c(  #"s-u/rJava",
+                    #"dragua/xlsx",
+                    "rstudio/htmltools",
+                    "RcppCore/Rcpp",
+                    "tidyverse/tidyverse",
+                    "r-lib/debugme",
+                    "r-lib/processx",
+                    "tidyverse/purrr",
+                    "tidyverse/reprex",
+                    "tidyverse/tibble",
+                    "rstats-db/DBI",
+                    "krlmlr/bindr",
+                    "tidyverse/glue",
+                    "krlmlr/bindrcpp",
+                    "tidyverse/dplyr",
+                    "hadley/plyr",
+                    "cran/psych",
+                    "cran/colorspace",
+                    "hadley/scales",
+                    "hadley/gtable",
+                    "gagolews/stringi",
+                    "hadley/reshape",
+                    "tidyverse/tidyverse",
+                    "rstudio/rmarkdown",
+                    "yihui/knitr",
+                    "ramnathv/htmlwidgets",
+                    "tidyverse/rlang",
+                    #"igraph/rigraph",
+                    #"omegahat/XML",
+                    "tidyverse/tidyselect",
+                    "tidyverse/tidyr",
+                    "tidyverse/stringr",
+                    "tidyverse/readxl",
+                    "jeffreyhorner/Rook",
+                    "sjmgarnier/viridisLite",
+                    "sjmgarnier/viridis",
+                    "datastorm-open/visNetwork",
+                    "rich-iannone/DiagrammeR"
+                  )
+
+for (i in pkgsToInstall) {
+    devtools::install_github(i)
+}
