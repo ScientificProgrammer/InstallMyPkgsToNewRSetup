@@ -55,9 +55,9 @@ Despite these headaches, Python's popularity continues to grow, again, in large
 part because of the paradox I mentioned earlier.
 
 Another popular software project that springs to mind for this paradox
-is *Node.js*. If you're not familiar with it, perform a web-search for
+is *Node.js*. If you're not familiar with it, check out
+this interesting story from *ARS Technica* titled, [Rage-quit: Coder unpublished 17 lines of JavaScript and “broke the Internet”](https://arstechnica.com/information-technology/2016/03/rage-quit-coder-unpublished-17-lines-of-javascript-and-broke-the-internet/),
 
-    what's wrong with node.js npm?
 
 The net summary of all that background information is that I created this
 repo so that I'd have a structured place to maintain my relatively simple
