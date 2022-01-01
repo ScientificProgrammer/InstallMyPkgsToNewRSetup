@@ -1,4 +1,7 @@
-## [ScientificProgrammer/InstallMyPkgsToNewRSetup](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup)
+![Your Repository's Stats](https://github-readme-stats.vercel.app/api/top-langs/?username=ScientificProgrammer&theme=blue-green)
+
+
+## README: [ScientificProgrammer/InstallMyPkgsToNewRSetup](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup)
 
 ### PURPOSE
 
