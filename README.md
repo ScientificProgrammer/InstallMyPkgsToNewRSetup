@@ -1,14 +1,12 @@
-# (ScientificProgrammer/InstallMyPkgsToNewRSetup)[https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup]
+## [ScientificProgrammer/InstallMyPkgsToNewRSetup][https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup]
 
-# OVERVIEW
-
-## PURPOSE
+### PURPOSE
 
 The purpose of this repo is to maintain a script for automatically importing the latest
 versions of the most common or critical packages I need whenever setting up a
 new installation of R.
 
-## BACKGROUND
+### BACKGROUND
 
 Over the years, there are a number of R packages that I have found to be essential
 for the work I do with R. On too many occasions, I have attempted to load a package
@@ -81,9 +79,9 @@ of the package (if it was already installed), and then warn the user.
 I'd rather have this problem happen at a time of my choosing versus
 in the hour before I have a deadline due.
 
-## CAVEATS
+### CAVEATS
 
-### WHY IS THIS SCRIPT SO CRUDE?
+#### WHY IS THIS SCRIPT SO CRUDE?
 I created this script at least 4 years prior to the creation of this repo. Initially,
 this script was stored on my Google Drive. I'd call it up whenever I needed it,
 then make hacky edits.
@@ -94,7 +92,7 @@ of the file, which is the reason for the files located in the `_pre_git_versions
 folder. Now, by using `git`, there will be no need for those files going further.
 
 
-### WHY DIDN'T YOU IMPLEMENT IT AS A PACKAGE?
+#### WHY DIDN'T YOU IMPLEMENT IT AS A PACKAGE?
 
 SHORT ANSWER: Time.
 
