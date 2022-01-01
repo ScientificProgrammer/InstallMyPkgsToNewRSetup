@@ -1,4 +1,4 @@
-![Your Repository's Stats](https://github-readme-stats.vercel.app/api/top-langs/?username=ScientificProgrammer&theme=blue-green)
+![GNU 3.0 License Badge](https://img.shields.io/github/license/ScientificProgrammer/InstallMyPkgsToNewRSetup)
 
 
 ## README: [ScientificProgrammer/InstallMyPkgsToNewRSetup](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup)
