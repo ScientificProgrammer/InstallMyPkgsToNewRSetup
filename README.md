@@ -1,4 +1,4 @@
-## [ScientificProgrammer/InstallMyPkgsToNewRSetup][https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup]
+## [ScientificProgrammer/InstallMyPkgsToNewRSetup](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup)
 
 ### PURPOSE
 
