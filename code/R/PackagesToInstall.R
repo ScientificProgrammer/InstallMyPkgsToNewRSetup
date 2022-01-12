@@ -15,15 +15,14 @@ Sys.setenv(GLPK_HOME = "/mingw64")
 Sys.setenv(LIB_XML = "/mingw64")              #Files are located at /mingw32/include/libxml2/
 Sys.setenv(LIB_GMP = "/mingw64")
 
-
+remotes::install_github("yihui/knitr",           build_vignettes = FALSE)
 remotes::install_github("rstudio/rmarkdown",     build_vignettes = TRUE)
+remotes::install_github("kiernann/gluedown",     build_vignettes = TRUE)
 remotes::install_github("r-lib/credentials",     build_vignettes = TRUE)
 remotes::install_github("r-lib/rlang",           build_vignettes = TRUE)
 remotes::install_github("rstudio/reticulate",    build_vignettes = TRUE)
 remotes::install_github("RcppCore/Rcpp",         build_vignettes = FALSE)
 
-# remotes::install_github("yihui/xfun",            build_vignettes = TRUE)
-remotes::install_github("yihui/knitr",           build_vignettes = FALSE)
 remotes::install_github("tidyverse/tidyverse",   build_vignettes = TRUE)
 remotes::install_github("rstudio/profvis",       build_vignettes = TRUE)
 remotes::install_github("tidyverse/ggplot2",     build_vignettes = TRUE)
