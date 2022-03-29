@@ -22,6 +22,7 @@ remotes::install_github("r-lib/credentials",     build_vignettes = TRUE)
 remotes::install_github("r-lib/rlang",           build_vignettes = TRUE)
 remotes::install_github("rstudio/reticulate",    build_vignettes = TRUE)
 remotes::install_github("RcppCore/Rcpp",         build_vignettes = FALSE)
+remotes::install_github("r-lib/downlit",         build_vignettes = TRUE)
 
 remotes::install_github("tidyverse/tidyverse",   build_vignettes = TRUE)
 remotes::install_github("rstudio/profvis",       build_vignettes = TRUE)
