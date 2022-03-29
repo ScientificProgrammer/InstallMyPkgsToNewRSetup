@@ -12,7 +12,7 @@ library(remotes)
  
 # install.packages("xml2")
 Sys.setenv(GLPK_HOME = "/mingw64")
-Sys.setenv(LIB_XML = "/mingw64")              #Files are located at /mingw32/include/libxml2/
+Sys.setenv(LIB_XML = "/mingw64")              # Files are located at /mingw32/include/libxml2/
 Sys.setenv(LIB_GMP = "/mingw64")
 
 remotes::install_github("yihui/knitr",           build_vignettes = FALSE)
