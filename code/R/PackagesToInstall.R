@@ -52,13 +52,6 @@ invisible(
   lapply(
     c("formatR", "markdown", "nycflights13"),
     function(x) {
-      # if (x == "remotes") {
-      #   if ( !require("devtools", character.only = TRUE) ) {
-      #     install.packages(x)
-      #   } else if ( !require(x, character.only = TRUE) ) {
-      #         install.packages(x)
-      #   }
-      # }
       install.packages(x, type = "source")
     }
   )
@@ -109,42 +102,6 @@ PkgsToInstall = matrix(
   )
 )
 
-# remotes::install_github("jennybc/repurrrsive",   build_vignettes = TRUE, force = TRUE, dependencies = TRUE, build_manual = TRUE)
-# remotes::install_github("rstudio/rmarkdown",     build_vignettes = TRUE, force = TRUE)
-# remotes::install_github("yihui/knitr",           build_vignettes = TRUE, force = TRUE)
-# remotes::install_github("tidyverse/rvest",       build_vignettes = TRUE)
-# remotes::install_github("kiernann/gluedown",     build_vignettes = TRUE)
-# remotes::install_github("r-lib/credentials",     build_vignettes = TRUE)
-# remotes::install_github("rstudio/reticulate",    build_vignettes = TRUE)
-# remotes::install_github("RcppCore/Rcpp",         build_vignettes = TRUE)
-# remotes::install_github("r-lib/downlit",         build_vignettes = TRUE)
-# remotes::install_github("tidyverse/tidyverse",   build_vignettes = TRUE)
-# remotes::install_github("tidyverse/tidyr",       build_vignettes = TRUE, force = FALSE, dependencies = TRUE)
-# remotes::install_github("tidyverse/dplyr",       build_vignettes = TRUE)
-# remotes::install_github("tidyverse/readr",       build_vignettes = TRUE)
-# remotes::install_github("tidyverse/purrr",       build_vignettes = TRUE, force = FALSE, dependencies = TRUE)
-# # remotes::install_github("tidyverse/stringi",     build_vignettes = TRUE)
-# remotes::install_github("gagolews/stringi",      build_vignettes = TRUE)
-# remotes::install_github("tidyverse/stringr",     build_vignettes = TRUE, force = FALSE, dependencies = TRUE)
-# remotes::install_github("rstudio/profvis",       build_vignettes = TRUE)
-# remotes::install_github("tidyverse/ggplot2",     build_vignettes = TRUE)
-# remotes::install_github("rstudio/shiny",         build_vignettes = TRUE)
-# remotes::install_github("ropensci/plotly",       build_vignettes = TRUE)
-# remotes::install_github("thomasp85/gganimate",   build_vignettes = TRUE)
-# remotes::install_github("haozhu233/kableExtra",  build_vignettes = TRUE)
-# remotes::install_github("trinker/pacman",        build_vignettes = TRUE)
-# remotes::install_github("DyfanJones/RAthena",    build_vignettes = TRUE)
-# remotes::install_github("r-dbi/DBI",             build_vignettes = TRUE)
-# remotes::install_github("r-dbi/RPostgres",       build_vignettes = TRUE)
-# remotes::install_github("r-dbi/RMariaDB",        build_vignettes = TRUE)
-# remotes::install_github("r-dbi/RSQLite",         build_vignettes = TRUE)
-# remotes::install_github("r-dbi/odbc",            build_vignettes = TRUE)
-# remotes::install_github("rstudio/sparklyr",      build_vignettes = TRUE)
-# remotes::install_github("tidyverse/dbplyr",      build_vignettes = TRUE)
-# remotes::install_github("sjmgarnier/viridisLite", build_vignettes = TRUE)
-# remotes::install_github("sjmgarnier/viridis",    build_vignettes = TRUE, dependencies = TRUE)
-# remotes::install_github("rich-iannone/DiagrammeR", build_vignettes = TRUE, dependencies = TRUE)
-# # remotes::install_github("omegahat/XML",          build_vignettes = TRUE, dependencies = TRUE)
 
 PrintSeparator <- function(pNumDashes = 76, pNumPrefixRet = 2, pNumSuffixRet = 2) {
   # Ensure that all function arguments are integers
