@@ -65,7 +65,6 @@
 "r-lib/pkgapi"                    ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/prettycode"                ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "Rdatatable/data.table"           ,FALSE       ,TRUE         ,TRUE            ,TRUE
-"peter-evans/repository-dispatch" ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "jennybc/repurrrsive"             ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "rstudio/rmarkdown"               ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "yihui/knitr"                     ,FALSE       ,TRUE         ,TRUE            ,TRUE
