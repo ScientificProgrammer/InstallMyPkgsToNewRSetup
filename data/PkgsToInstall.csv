@@ -42,7 +42,6 @@
 "r-lib/coro"                      ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/mockery"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/webfakes"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
-"r-lib/prettyunit"                ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/rprojroot"                 ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/ragg"                      ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/svglite"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
