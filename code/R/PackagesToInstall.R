@@ -161,3 +161,5 @@ for (i in 1:nrow(PkgsToInstall)) {
       dependencies = PkgsToInstall$dependencies[i])
     cat(rep("*", 100), "\n", sep = "")
 }
+
+sessioninfo::session_info()
