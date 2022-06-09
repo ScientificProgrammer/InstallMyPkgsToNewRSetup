@@ -1,11 +1,72 @@
 # See helpful tips at
 # https://stat.ethz.ch/pipermail/r-package-devel/2017q4/002187.html
 
-# Use the following command from the command shell to install the 'rlang'
-# package before installing all of these other packages.
+# *************************************************************************
+# June 8, 2022 - CRITICAL - INSTALL 'rlang' BEFORE PROCEEDING
+# _________________________________________________________________________
+# The 'rlang' package is very critical. Make sure that its latest development
+# version is installed before proceeding. If is not installed, at best,
+# you will be prompted repeatedly to confirm whether or not you wish to
+# install it. At worst, your installation will be broken.
+# If you try to install 'rlang' using the 'devtools::install_github()' or
+# 'remotes::install_github()' function from within an RStudio session,
+# the system will inform you that 'rlang' is already in use and ask you
+# if you want to restart your R session.
+#
+# If you answer 'YES', you will
+# be stuck in an infinite loop. If you answer 'NO', the install may finish.
+# However, more likely, you will receive an error telling you that a DLL
+# was in use, so the install failed. There is also a possibility that the
+# install will appear to complete successfully, but, you will run into mysterious
+# errors later on, and they will be very hard to diagnose.
+#
+# As of the date above, I was able to successfully install the 'rlang' package
+# as follows.
+# 1. Open a Windows command shell with administrative privileges. If you're not
+#    sure how, use a search engine.
+#
+# 2. Enter the following command.
+#        R -e "remotes::install_github('r-lib/rlang', build_vignettes = TRUE, build_manual = TRUE, force = TRUE)"
+#
+# 3. If you encounter errors, try the following command.
+#        R -e "remotes::install_github('r-lib/rlang')"
+#
+# 4. If you still are having trouble, visit StackOverflow or Reddit.com/r/RStudio
+#    and ask for help.
+#
+# 5. NOTE:  Today was the first time I was ever able to successfully
+#           install the development version of the 'devtools' package, which
+#           I did as shown in Step 2, above, except, here's the
+#           command that I ran.
+#
+#       R -e "remotes::install_github('r-lib/devtools', build_vignettes = TRUE, build_manual = TRUE, force = TRUE)"
+#           
+# -------------------------------------------------------------------------
+#
+# June 8, 2022
+# The Github repo for "r-lib/rlang" v1.02 suggests using the `pak` package for
+# installing 'rlang' via the the following code statement.
+#     pak::pkg_install("r-lib/rlang")
+#
+# See the following URLs for more information.
+#   1. See the r-lib/rlang Github README for more info.
+#           https://github.com/r-lib/rlang/tree/34b04a8a731b054de950ce885627898617e8b297#installation
+#
+#   2. RStudio has an in-progress page that says "pak" is for human interaction,
+#      whereas, "remotes" is a lightweight, programmatic interface for package
+#      installation with no dependencies. See the following URL for more info.
+#           https://environments.rstudio.com/installation
+#
+#   3. The r-lib/pak Github repo.
+#           https://github.com/r-lib/pak
+#
+# *************************************************************************
+#
+
+pkgCSVFile <- "./data/PkgsToInstall.csv"
 
 Sys.setenv(GLPK_HOME = "/mingw64")
-Sys.setenv(LIB_XML = "/mingw64")              # Files are located at /mingw32/include/libxml2/
+Sys.setenv(LIB_XML = "/mingw64")                                     # Files are located at /mingw32/include/libxml2/
 Sys.setenv(LIB_GMP = "/mingw64")
 
 # On Windows, to install the older XML package, first,
@@ -15,18 +76,23 @@ Sys.setenv(LIB_GMP = "/mingw64")
 #
 # After RTools42 is installed, the local repos need to
 # be updated using Pacman, and then the libxml2 system
-# library needs to be installed.
-# Open an msys2 shell and run the following commands.
+# library needs to be installed. To do so, open an msys2 shell and run
+# the following commands.
+#
 #     pacman -Sy                                          # Update the local repos
 #     pacman -S mingw-w64-{i686,x86_64}-libxml2           # Install libxml2 system lib
 #
 # Once the previous steps have been completed, R can now
-# compile packages from source and install them.
-# The following sequence of commands can be used
-# to install the older XML package.
+# compile packages from source and install them. To test
+# your installation, try to install the 'XML' and 'RCurl'
+# packages using the following commands.
+#
+# From within R, run the following two commands.
 Sys.setenv(LOCAL_CPPFLAGS = "-I$(MINGW_PREFIX)/include/libxml2")
 install.packages("XML", type = "source")
 
+# If your installation is working correctly, the 'XML' package
+# will have been installed with no errors.
 # For more details on the aforementioned procedure
 # and commands, see the documentation available
 # at the following URL.
@@ -37,17 +103,19 @@ install.packages("XML", type = "source")
 #     pacman -Sy                                          # Update the local repos 
 #     pacman -S mingw-w64-{i686,x86_64}-curl              # Install the curl system libs
 #
-# Now you can install RCurl from souce by running the
+# Now you can install RCurl from source by running the
 # following command from within R itself.
 install.packages("RCurl", type = "source")
 # For more information, visit
 #     https://github.com/r-windows/docs/blob/master/packages.md#readme
 
-# Install some critical packages
+# Install the 'remotes' package, which is critical for the rest
+# of this script to work properly.
 if (!require("remotes", character.only = TRUE)) {
   install.packages("remotes")
 }
 
+# Install some other critical packages.
 invisible(
   lapply(
     c("formatR", "markdown", "nycflights13"),
@@ -57,55 +125,24 @@ invisible(
   )
 )
 
-PkgsToInstall = matrix(
-  data = c(
-    "jennybc/repurrrsive"     ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "rstudio/rmarkdown"       ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "yihui/knitr"             ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/rvest"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "kiernann/gluedown"       ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-lib/credentials"       ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "rstudio/reticulate"      ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "RcppCore/Rcpp"           ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-lib/downlit"           ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/tidyverse"     ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/tidyr"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/dplyr"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/readr"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/purrr"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "gagolews/stringi"        ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/stringr"       ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "rstudio/profvis"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/ggplot2"       ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "rstudio/shiny"           ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "ropensci/plotly"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "thomasp85/gganimate"     ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "haozhu233/kableExtra"    ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "trinker/pacman"          ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "DyfanJones/RAthena"      ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-dbi/DBI"               ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-dbi/RPostgres"         ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-dbi/RMariaDB"          ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-dbi/RSQLite"           ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "r-dbi/odbc"              ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "rstudio/sparklyr"        ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "tidyverse/dbplyr"        ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "sjmgarnier/viridisLite"  ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "sjmgarnier/viridis"      ,TRUE  ,TRUE  ,TRUE  ,TRUE  ,
-    "rich-iannone/DiagrammeR" ,TRUE  ,TRUE  ,TRUE  ,TRUE
-  ),
-  ncol = 5,
-  byrow = TRUE,
-  dimnames = list(
-    rownames = 1:34           ,
-    colnames = c("repo_name"  ,"force" ,"dependencies" ,"build_vignettes" , "build_manuals")
-  )
-)
+# Read in the CSV file that contains the list of all packages
+# to be installed, along with flags indicating whether or not
+# the package should be "force installed", vignettes should be built,
+# manuals should be built, and dependencies should be installed.
+PkgsToInstall <- read.csv(pkgCSVFile, strip.white = TRUE)
 
+View(PkgsToInstall)
+
+dupPkgs <- names(which(table(PkgsToInstall$repo) > 1))
+
+if (length(dupPkgs) != 0) {
+  msg <- paste(length(dupPkgs), "duplicate package", ifelse(length(dupPkgs) > 1, "names were", "name was"), "found.")
+  msg <- paste0(msg, "\n  Please update \"", pkgCSVFile, "\" to remove the duplicates.\n")
+  msg <- paste0(msg, paste0("      \"", dupPkgs, "\"", collapse = "\n"), sep = "\n")
+  stop(msg)
+}
 
 PrintSeparator <- function(pNumDashes = 76, pNumPrefixRet = 2, pNumSuffixRet = 2) {
-  # Ensure that all function arguments are integers
-  #formals(sys.call) <- lapply(as.list(environment()), as.integer)
   prefixStr <- paste(rep.int("\n", times = pNumPrefixRet), sep = "", collapse = "")
   sepString <- paste(rep.int(x = "-", times = pNumDashes), sep = "", collapse = "")
   postFixStr <- paste(rep.int("\n", times = pNumSuffixRet), sep = "", collapse = "")
@@ -114,32 +151,13 @@ PrintSeparator <- function(pNumDashes = 76, pNumPrefixRet = 2, pNumSuffixRet = 2
   cat(postFixStr)
 }
 
-#OUTPUT_DIR <- "D:/GoogleDrive/eric.milgram/R Examples/Package Mgt"
-
-pkgsToInstall = c(  
-                    "r-lib/here",
-                    "christophergandrud/networkD3",
-                    "thomasp85/ggforce",
-                    "rstudio/gt",
-                    "rstudio/leaflet",
-                    "rstudio/htmltools",
-                    "rstudio/rsconnect",
-                    "r-lib/debugme",
-                    "krlmlr/bindr",
-                    "hadley/scales",
-                    "ramnathv/htmlwidgets",
-                    "jeffreyhorner/Rook",
-                    "datastorm-open/visNetwork"
-                  )
-
-for (i in pkgsToInstall) {
-    cat("\n\n\n", i, "\t\n", sep = "")
+for (i in 1:nrow(PkgsToInstall)) {
+    cat("\n\n\n", i, ": ", PkgsToInstall$repo[i], "\n", sep = "")
     cat(rep("*", 100), "\n", sep = "")
-    # PrintSeparator()
-    ##devtools::install_github(i, OUTPUT_DIR)
-    remotes::install_github(i, build_manual = FALSE, build_vignettes = TRUE, dependencies = TRUE)
-    # devtools::install_github(i)
-    # PrintSeparator()
+    remotes::install_github(
+      PkgsToInstall$repo[i],
+      build_manual = PkgsToInstall$build_manuals[i],
+      build_vignettes = PkgsToInstall$build_vignettes[i],
+      dependencies = PkgsToInstall$dependencies[i])
     cat(rep("*", 100), "\n", sep = "")
 }
-
