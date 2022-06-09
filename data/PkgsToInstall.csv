@@ -27,7 +27,6 @@
 "r-lib/gitcreds"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/tidyselect"                ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/cpp11"                     ,FALSE       ,TRUE         ,TRUE            ,TRUE
-"r-lib/rig"                       ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/tzdb"                      ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/askpass"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/archive"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
