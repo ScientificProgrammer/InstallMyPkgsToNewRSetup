@@ -65,9 +65,9 @@
 
 pkgCSVFile <- "./data/PkgsToInstall.csv"
 
-Sys.setenv(GLPK_HOME = "/mingw64")
-Sys.setenv(LIB_XML = "/mingw64")                                     # Files are located at /mingw32/include/libxml2/
-Sys.setenv(LIB_GMP = "/mingw64")
+# Sys.setenv(GLPK_HOME = "/mingw64")
+# Sys.setenv(LIB_XML = "/mingw64")                                     # Files are located at /mingw32/include/libxml2/
+# Sys.setenv(LIB_GMP = "/mingw64")
 
 # On Windows, to install the older XML package, first,
 # RTools42 needs to be installed. See the following URL
@@ -88,8 +88,8 @@ Sys.setenv(LIB_GMP = "/mingw64")
 # packages using the following commands.
 #
 # From within R, run the following two commands.
-Sys.setenv(LOCAL_CPPFLAGS = "-I$(MINGW_PREFIX)/include/libxml2")
-install.packages("XML", type = "source")
+# Sys.setenv(LOCAL_CPPFLAGS = "-I$(MINGW_PREFIX)/include/libxml2")
+# install.packages("XML", type = "source")
 
 # If your installation is working correctly, the 'XML' package
 # will have been installed with no errors.
@@ -105,25 +105,25 @@ install.packages("XML", type = "source")
 #
 # Now you can install RCurl from source by running the
 # following command from within R itself.
-install.packages("RCurl", type = "source")
+# install.packages("RCurl", type = "source")
 # For more information, visit
 #     https://github.com/r-windows/docs/blob/master/packages.md#readme
 
 # Install the 'remotes' package, which is critical for the rest
 # of this script to work properly.
-if (!require("remotes", character.only = TRUE)) {
-  install.packages("remotes")
-}
+# if (!require("remotes", character.only = TRUE)) {
+#   install.packages("remotes")
+# }
 
 # Install some other critical packages.
-invisible(
-  lapply(
-    c("formatR", "markdown", "nycflights13"),
-    function(x) {
-      install.packages(x, type = "source")
-    }
-  )
-)
+# invisible(
+#   lapply(
+#     c("formatR", "markdown", "nycflights13"),
+#     function(x) {
+#       install.packages(x, type = "source")
+#     }
+#   )
+# )
 
 # Read in the CSV file that contains the list of all packages
 # to be installed, along with flags indicating whether or not
