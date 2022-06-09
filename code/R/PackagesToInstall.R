@@ -152,7 +152,7 @@ PrintSeparator <- function(pNumDashes = 76, pNumPrefixRet = 2, pNumSuffixRet = 2
 }
 
 for (i in 1:nrow(PkgsToInstall)) {
-    cat("\n\n\n", i, ": ", PkgsToInstall$repo[i], "\n", sep = "")
+    cat("\n\n\n", i, " of ", nrow(PkgsToInstall), ": ", PkgsToInstall$repo[i], "\n", sep = "")
     cat(rep("*", 100), "\n", sep = "")
     remotes::install_github(
       PkgsToInstall$repo[i],
