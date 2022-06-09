@@ -1,5 +1,7 @@
 "repo"                            ,"force_build" ,"dependencies" ,"build_vignettes" ,"build_manuals"
-"r-lib/pak"                       ,TRUE        ,TRUE         ,TRUE            ,TRUE
+"r-lib/pak"                       ,FALSE       ,TRUE         ,TRUE            ,TRUE
+"r-lib/zealot"                    ,FALSE       ,TRUE         ,TRUE            ,TRUE
+"r-lib/vctrs"                    ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/testthat"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/usethis"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/roxygen2"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
