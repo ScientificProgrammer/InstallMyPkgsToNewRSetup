@@ -31,7 +31,7 @@
 "r-lib/askpass"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/archive"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/scales"                    ,FALSE       ,TRUE         ,TRUE            ,TRUE
-"r-lib/yamlthis"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
+"r-lib/ymlthis"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/xmlparsedata"              ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/ps"                        ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/fs"                        ,FALSE       ,TRUE         ,TRUE            ,TRUE
@@ -65,6 +65,7 @@
 "r-lib/rappdirs"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/pkgapi"                    ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/prettycode"                ,FALSE       ,TRUE         ,TRUE            ,TRUE
+"Rdatatable/data.table"           ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "peter-evans/repository-dispatch" ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "jennybc/repurrrsive"             ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "rstudio/rmarkdown"               ,FALSE       ,TRUE         ,TRUE            ,TRUE
