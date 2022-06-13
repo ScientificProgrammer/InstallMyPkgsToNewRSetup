@@ -1,6 +1,8 @@
 # See helpful tips at
 # https://stat.ethz.ch/pipermail/r-package-devel/2017q4/002187.html
 
+pkgCSVFile <- "./data/PkgsToInstall.csv"
+
 # *************************************************************************
 # June 8, 2022 - CRITICAL - INSTALL 'rlang' BEFORE PROCEEDING
 # _________________________________________________________________________
@@ -61,13 +63,19 @@
 #           https://github.com/r-lib/pak
 #
 # *************************************************************************
-#
 
-pkgCSVFile <- "./data/PkgsToInstall.csv"
+# Make sure that a valid CRAN repo is set.
+x2 <- getOption("repos")
+
+if (is.na(x2["CRAN"])) {
+    x2 <- structure(c(CRAN = "https://cloud.r-project.org"), RStudio = TRUE)
+    options(repos = x2)
+}
+rm(x2)
 
 Sys.setenv(GLPK_HOME = "/mingw64")
-Sys.setenv(LIB_XML = "/mingw64")                                     # Files are located at /mingw32/include/libxml2/
-Sys.setenv(LIB_GMP = "/mingw64")
+Sys.setenv(LIB_XML   = "/mingw64")                                     # Files are located at /mingw32/include/libxml2/
+Sys.setenv(LIB_GMP   = "/mingw64")
 
 # On Windows, to install the older XML package, first,
 # RTools42 needs to be installed. See the following URL
@@ -88,8 +96,8 @@ Sys.setenv(LIB_GMP = "/mingw64")
 # packages using the following commands.
 #
 # From within R, run the following two commands.
-Sys.setenv(LOCAL_CPPFLAGS = "-I$(MINGW_PREFIX)/include/libxml2")
-install.packages("XML", type = "source")
+#   Sys.setenv(LOCAL_CPPFLAGS = "-I$(MINGW_PREFIX)/include/libxml2")
+#   install.packages("XML", type = "source")
 
 # If your installation is working correctly, the 'XML' package
 # will have been installed with no errors.
@@ -105,25 +113,46 @@ install.packages("XML", type = "source")
 #
 # Now you can install RCurl from source by running the
 # following command from within R itself.
-install.packages("RCurl", type = "source")
+#   install.packages("RCurl", type = "source")
+
 # For more information, visit
 #     https://github.com/r-windows/docs/blob/master/packages.md#readme
 
 # Install the 'remotes' package, which is critical for the rest
 # of this script to work properly.
 if (!require("remotes", character.only = TRUE)) {
-  install.packages("remotes")
+    install.packages("remotes")
 }
 
+# June 13, 2022
+# Install pak first - Based on my testing over the past week, for package
+# installation, pak is so much more reliable than either remotes or devtools.
+# remotes::install_github(
+#     repo            = "r-lib/pak",
+#     force           = FALSE,
+#     dependencies    = TRUE,
+#     build_vignettes = TRUE,
+#     build_manual    = TRUE,
+#     upgrade         = "never"
+# )
+
+if (!require("pak", character.only = TRUE)) {
+    install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
+}
+# remotes::install_github('tidyverse/glue', force = FALSE, upgrade = 'never', dependencies = TRUE, build_vignettes = TRUE, build_manual = TRUE)
+
+# **** IMPORTANT: Run this command from the command line ****
+# RScript --verbose -e "try(pak::pkg_install('tidyverse/glue', upgrade = TRUE, dependencies = pkgdepends::as_pkg_dependencies('all'))); sessioninfo::session_info();"
+
 # Install some other critical packages.
-invisible(
-  lapply(
-    c("formatR", "markdown", "nycflights13"),
-    function(x) {
-      install.packages(x, type = "source")
-    }
-  )
-)
+# invisible(
+#     lapply(
+#         c("formatR", "markdown", "nycflights13"),
+#         function(x) {
+#           install.packages(x, type = "source")
+#         }
+#     )
+# )
 
 # Read in the CSV file that contains the list of all packages
 # to be installed, along with flags indicating whether or not
@@ -131,35 +160,30 @@ invisible(
 # manuals should be built, and dependencies should be installed.
 PkgsToInstall <- read.csv(pkgCSVFile, strip.white = TRUE)
 
-View(PkgsToInstall)
-
+# Check for duplicated package names and halt if found.
 dupPkgs <- names(which(table(PkgsToInstall$repo) > 1))
 
 if (length(dupPkgs) != 0) {
-  msg <- paste(length(dupPkgs), "duplicate package", ifelse(length(dupPkgs) > 1, "names were", "name was"), "found.")
-  msg <- paste0(msg, "\n  Please update \"", pkgCSVFile, "\" to remove the duplicates.\n")
-  msg <- paste0(msg, paste0("      \"", dupPkgs, "\"", collapse = "\n"), sep = "\n")
-  stop(msg)
+    msg <- paste(length(dupPkgs), "duplicate package", ifelse(length(dupPkgs) > 1, "names were", "name was"), "found.")
+    msg <- paste0(msg, "\n  Please update \"", pkgCSVFile, "\" to remove the duplicates.\n")
+    msg <- paste0(msg, paste0("      \"", dupPkgs, "\"", collapse = "\n"), sep = "\n")
+    stop(simpleError(msg))
 }
 
-PrintSeparator <- function(pNumDashes = 76, pNumPrefixRet = 2, pNumSuffixRet = 2) {
-  prefixStr <- paste(rep.int("\n", times = pNumPrefixRet), sep = "", collapse = "")
-  sepString <- paste(rep.int(x = "-", times = pNumDashes), sep = "", collapse = "")
-  postFixStr <- paste(rep.int("\n", times = pNumSuffixRet), sep = "", collapse = "")
-  cat(prefixStr)
-  cat(sepString)
-  cat(postFixStr)
-}
+# Start the main package installation
+# for (i in seq_len(nrow(PkgsToInstall))) {
+#     cat("\n\n\n", i, " of ", nrow(PkgsToInstall), ": ", PkgsToInstall$repo[i], "\n", sep = "")
+#     cat(rep("*", 100), "\n", sep = "")
+#     pak::pkg_install(
+#         as.character(PkgsToInstall$repo[i]),
+#         upgrade = TRUE,
+#         ask = TRUE,
+#         dependencies = pkgdepends::as_pkg_dependencies('all'))
+#     cat(rep("*", 100), "\n", sep = "")
+# }
 
-for (i in 1:nrow(PkgsToInstall)) {
-    cat("\n\n\n", i, " of ", nrow(PkgsToInstall), ": ", PkgsToInstall$repo[i], "\n", sep = "")
-    cat(rep("*", 100), "\n", sep = "")
-    remotes::install_github(
-      PkgsToInstall$repo[i],
-      build_manual = PkgsToInstall$build_manuals[i],
-      build_vignettes = PkgsToInstall$build_vignettes[i],
-      dependencies = PkgsToInstall$dependencies[i])
-    cat(rep("*", 100), "\n", sep = "")
-}
-
-sessioninfo::session_info()
+pak::pkg_install(
+    as.character(PkgsToInstall$repo),
+    upgrade = TRUE,
+    ask = TRUE,
+    dependencies = pkgdepends::as_pkg_dependencies('all'))

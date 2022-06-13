@@ -1,5 +1,4 @@
 "repo"                            ,"force_build" ,"dependencies" ,"build_vignettes" ,"build_manuals"
-"r-lib/pak"                       ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/zeallot"                   ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/vctrs"                     ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "r-lib/testthat"                  ,FALSE       ,TRUE         ,TRUE            ,TRUE
