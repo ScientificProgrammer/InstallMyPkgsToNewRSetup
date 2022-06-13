@@ -106,3 +106,4 @@
 "ramnathv/htmlwidgets"            ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "jeffreyhorner/Rook"              ,FALSE       ,TRUE         ,TRUE            ,TRUE
 "datastorm-open/visNetwork"       ,FALSE       ,TRUE         ,TRUE            ,TRUE
+"daattali/addinslist"             ,FALSE       ,TRUE         ,TRUE            ,TRUE
