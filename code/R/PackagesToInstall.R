@@ -121,7 +121,7 @@ Sys.setenv(LIB_GMP   = "/mingw64")
 # Install the 'remotes' package, which is critical for the rest
 # of this script to work properly.
 if (!require("remotes", character.only = TRUE)) {
-    install.packages("remotes")
+    install.packages('remotes', type = 'source')
 }
 
 # June 13, 2022
@@ -183,7 +183,7 @@ if (length(dupPkgs) != 0) {
 # }
 
 pak::pkg_install(
-    as.character(PkgsToInstall$repo),
+    as.character(PkgsToInstall$repo_name),
     upgrade = TRUE,
     ask = TRUE,
     dependencies = pkgdepends::as_pkg_dependencies('all'))
