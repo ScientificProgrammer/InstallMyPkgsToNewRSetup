@@ -1,7 +1,46 @@
 # See helpful tips at
 # https://stat.ethz.ch/pipermail/r-package-devel/2017q4/002187.html
 
-pkgCSVFile <- "./data/PkgsToInstall.csv"
+pkgCSVFile <- "data/PkgsToInstall.csv"
+
+installPkgsFromSrc <- function(pkgNames) {
+    rslts <- lapply(
+        pkgNames,
+        function(pkgName) {
+            # pkgNameChar <- as.character(pkgName)
+            pkgNameChar <- pkgName
+            msg <- NULL
+            
+            # if (!require(pkgNameChar, character.only = TRUE, quietly = TRUE)) {
+            #     install.packages(pkgNameChar, type = 'source')
+            #     msg <- paste0("package '", pkgNameChar, "' was installed successfully from source.")
+            # } else {
+            #     detach(paste0("package:", pkgNameChar), unload = TRUE, character.only = TRUE)
+            #     msg <- paste0("package '", pkgNameChar, "' was already installed.")
+            # }
+            
+            if (!pkgNameChar %in% installed.packages()) {
+                install.packages(pkgNameChar, type = 'source')
+                msg <- paste0("package '", pkgNameChar, "' was installed successfully from source.")
+            } else {
+                msg <- paste0("package '", pkgNameChar, "' was already installed.")
+            }
+            
+            return(msg)
+        }
+    )
+    names(rslts) <- pkgNames
+    return(rslts)
+}
+
+# if (!require("here", character.only = TRUE)) {
+#     install.packages("here")
+#     library(here)
+# }
+
+rslts <- installPkgsFromSrc(c("here", "ps", "nycflights13"))
+
+pkgCSVFilePath <- here::here(pkgCSVFile)
 
 # *************************************************************************
 # June 8, 2022 - CRITICAL - INSTALL 'rlang' BEFORE PROCEEDING
@@ -158,7 +197,7 @@ if (!require("pak", character.only = TRUE)) {
 # to be installed, along with flags indicating whether or not
 # the package should be "force installed", vignettes should be built,
 # manuals should be built, and dependencies should be installed.
-PkgsToInstall <- read.csv(pkgCSVFile, strip.white = TRUE)
+PkgsToInstall <- read.csv(pkgCSVFilePath, strip.white = TRUE)
 
 # Check for duplicated package names and halt if found.
 dupPkgs <- names(which(table(PkgsToInstall$repo) > 1))
@@ -187,3 +226,4 @@ pak::pkg_install(
     upgrade = TRUE,
     ask = TRUE,
     dependencies = pkgdepends::as_pkg_dependencies('all'))
+
