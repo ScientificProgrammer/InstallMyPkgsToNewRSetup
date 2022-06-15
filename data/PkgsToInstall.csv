@@ -91,6 +91,7 @@
 "rstudio/gt"                   ,FALSE         ,TRUE           ,TRUE              ,TRUE
 "rstudio/htmltools"            ,FALSE         ,TRUE           ,TRUE              ,TRUE
 "rstudio/leaflet"              ,FALSE         ,TRUE           ,TRUE              ,TRUE
+"rstudio/pagedown"             ,FALSE         ,TRUE           ,TRUE              ,TRUE
 "rstudio/profvis"              ,FALSE         ,TRUE           ,TRUE              ,TRUE
 "rstudio/reticulate"           ,FALSE         ,TRUE           ,TRUE              ,TRUE
 "rstudio/rmarkdown"            ,FALSE         ,TRUE           ,TRUE              ,TRUE
