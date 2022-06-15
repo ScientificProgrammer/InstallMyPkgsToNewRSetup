@@ -8,24 +8,14 @@ installPkgsFromSrc <- function(pkgNames) {
         pkgNames,
         function(pkgName) {
             # pkgNameChar <- as.character(pkgName)
-            pkgNameChar <- pkgName
             msg <- NULL
             
-            # if (!require(pkgNameChar, character.only = TRUE, quietly = TRUE)) {
-            #     install.packages(pkgNameChar, type = 'source')
-            #     msg <- paste0("package '", pkgNameChar, "' was installed successfully from source.")
-            # } else {
-            #     detach(paste0("package:", pkgNameChar), unload = TRUE, character.only = TRUE)
-            #     msg <- paste0("package '", pkgNameChar, "' was already installed.")
-            # }
-            
-            if (!pkgNameChar %in% installed.packages()) {
-                install.packages(pkgNameChar, type = 'source')
-                msg <- paste0("package '", pkgNameChar, "' was installed successfully from source.")
+            if (!pkgName %in% installed.packages()) {
+                install.packages(pkgName, type = 'source')
+                msg <- paste0("package '", pkgName, "' was installed successfully from source.")
             } else {
-                msg <- paste0("package '", pkgNameChar, "' was already installed.")
+                msg <- paste0("package '", pkgName, "' was already installed.")
             }
-            
             return(msg)
         }
     )
@@ -33,12 +23,7 @@ installPkgsFromSrc <- function(pkgNames) {
     return(rslts)
 }
 
-# if (!require("here", character.only = TRUE)) {
-#     install.packages("here")
-#     library(here)
-# }
-
-rslts <- installPkgsFromSrc(c("here", "ps", "nycflights13"))
+rslts <- installPkgsFromSrc(c("here", "remotes"))
 
 pkgCSVFilePath <- here::here(pkgCSVFile)
 
@@ -157,41 +142,12 @@ Sys.setenv(LIB_GMP   = "/mingw64")
 # For more information, visit
 #     https://github.com/r-windows/docs/blob/master/packages.md#readme
 
-# Install the 'remotes' package, which is critical for the rest
-# of this script to work properly.
-if (!require("remotes", character.only = TRUE)) {
-    install.packages('remotes', type = 'source')
-}
-
-# June 13, 2022
-# Install pak first - Based on my testing over the past week, for package
-# installation, pak is so much more reliable than either remotes or devtools.
-# remotes::install_github(
-#     repo            = "r-lib/pak",
-#     force           = FALSE,
-#     dependencies    = TRUE,
-#     build_vignettes = TRUE,
-#     build_manual    = TRUE,
-#     upgrade         = "never"
-# )
-
 if (!require("pak", character.only = TRUE)) {
     install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
 }
-# remotes::install_github('tidyverse/glue', force = FALSE, upgrade = 'never', dependencies = TRUE, build_vignettes = TRUE, build_manual = TRUE)
 
 # **** IMPORTANT: Run this command from the command line ****
 # RScript --verbose -e "try(pak::pkg_install('tidyverse/glue', upgrade = TRUE, dependencies = pkgdepends::as_pkg_dependencies('all'))); sessioninfo::session_info();"
-
-# Install some other critical packages.
-# invisible(
-#     lapply(
-#         c("formatR", "markdown", "nycflights13"),
-#         function(x) {
-#           install.packages(x, type = "source")
-#         }
-#     )
-# )
 
 # Read in the CSV file that contains the list of all packages
 # to be installed, along with flags indicating whether or not
@@ -209,21 +165,8 @@ if (length(dupPkgs) != 0) {
     stop(simpleError(msg))
 }
 
-# Start the main package installation
-# for (i in seq_len(nrow(PkgsToInstall))) {
-#     cat("\n\n\n", i, " of ", nrow(PkgsToInstall), ": ", PkgsToInstall$repo[i], "\n", sep = "")
-#     cat(rep("*", 100), "\n", sep = "")
-#     pak::pkg_install(
-#         as.character(PkgsToInstall$repo[i]),
-#         upgrade = TRUE,
-#         ask = TRUE,
-#         dependencies = pkgdepends::as_pkg_dependencies('all'))
-#     cat(rep("*", 100), "\n", sep = "")
-# }
-
 pak::pkg_install(
     as.character(PkgsToInstall$repo_name),
     upgrade = TRUE,
     ask = TRUE,
     dependencies = pkgdepends::as_pkg_dependencies('all'))
-
