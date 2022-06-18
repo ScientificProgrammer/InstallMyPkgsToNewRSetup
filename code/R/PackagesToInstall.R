@@ -143,7 +143,19 @@ Sys.setenv(LIB_GMP   = "/mingw64")
 #     https://github.com/r-windows/docs/blob/master/packages.md#readme
 
 if (!require("pak", character.only = TRUE)) {
-    install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
+    # install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
+    try(
+        install.packages(
+            'pak',
+            repos = sprintf(
+                'https://r-lib.github.io/p/pak/devel/%s/%s/%s',
+                .Platform$pkgType,
+                R.Version()$os,
+                R.Version()$arch
+            )
+        )
+    )
+    sessioninfo::session_info();
 }
 
 # **** IMPORTANT: Run this command from the command line ****
