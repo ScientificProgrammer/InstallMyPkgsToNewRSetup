@@ -1,29 +1,69 @@
 # See helpful tips at
 # https://stat.ethz.ch/pipermail/r-package-devel/2017q4/002187.html
 
-pkgCSVFile <- "data/PkgsToInstall.csv"
+pkgCSVFile          <- "data/PkgsToInstall.csv"
+NUM_CPUS_TO_BLD_SRC <- 4
 
 installPkgsFromSrc <- function(pkgNames) {
-    rslts <- lapply(
-        pkgNames,
-        function(pkgName) {
-            # pkgNameChar <- as.character(pkgName)
-            msg <- NULL
+    rslts <- lapply(pkgNames, function(pkgName) {
+        msg <- NULL
             
-            if (!pkgName %in% installed.packages()) {
-                install.packages(pkgName, type = 'source')
-                msg <- paste0("package '", pkgName, "' was installed successfully from source.")
+        if (!pkgName %in% installed.packages()) {
+            if (pkgName == 'pak') {
+                if (!require("pak", character.only = TRUE)) {
+                    # install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
+                    try(
+                        install.packages(
+                            'pak',
+                            repos = sprintf(
+                                'https://r-lib.github.io/p/pak/devel/%s/%s/%s',
+                                .Platform$pkgType,
+                                R.Version()$os,
+                                R.Version()$arch
+                            )
+                        )
+                    )
+                }
             } else {
-                msg <- paste0("package '", pkgName, "' was already installed.")
+                install.packages(pkgName, type = 'source', Ncpus = NUM_CPUS_TO_BLD_SRC)
             }
-            return(msg)
+            msg <- paste0("package ", sprintf("%-15s", pkgName), " was installed successfully from source.")
+        } else {
+            msg <- paste0("package ", sprintf("%-15s", pkgName), " was already installed.")
         }
-    )
+        return(msg)
+    })
     names(rslts) <- pkgNames
     return(rslts)
 }
 
-rslts <- installPkgsFromSrc(c("here", "remotes"))
+# To install the development version of 'jeroen/curl' from Github, run the
+# following command. For more details, visit
+#
+#      https://github.com/jeroen/curl#development-version
+if (!require('curl')) {
+    try(
+        install.packages(
+            pkgs            = 'https://github.com/jeroen/curl/archive/master.tar.gz',
+            repos           = NULL,
+            build_vignettes = TRUE,
+            build_manual    = TRUE,
+            force           = FALSE
+        )
+    )
+    sessioninfo::session_info()
+}
+
+rslts <- installPkgsFromSrc(c("RCurl", "here", "remotes", "pkgdepends", "pak"))
+invisible(lapply(rslts, function(x) {cat(x, "\n")}))
+
+try(
+    pak::pkg_install(
+        pkg          = 'r-lib/rlang',
+        upgrade      = TRUE,
+        dependencies = pkgdepends::as_pkg_dependencies('all')
+    )
+)
 
 pkgCSVFilePath <- here::here(pkgCSVFile)
 
@@ -89,13 +129,17 @@ pkgCSVFilePath <- here::here(pkgCSVFile)
 # *************************************************************************
 
 # Make sure that a valid CRAN repo is set.
-x2 <- getOption("repos")
+# x2 <- getOption("repos")
+# 
+# if (is.na(x2["CRAN"])) {
+#     x2 <- structure(c(CRAN = "https://cloud.r-project.org"), RStudio = TRUE)
+#     options(repos = x2)
+# }
+# rm(x2)
 
-if (is.na(x2["CRAN"])) {
-    x2 <- structure(c(CRAN = "https://cloud.r-project.org"), RStudio = TRUE)
-    options(repos = x2)
+if (is.na(getOption("repos")["CRAN"])) {
+    options(repos = structure(c(CRAN = "https://cran.microsoft.com/"), RStudio = TRUE))
 }
-rm(x2)
 
 Sys.setenv(GLPK_HOME = "/mingw64")
 Sys.setenv(LIB_XML   = "/mingw64")                                     # Files are located at /mingw32/include/libxml2/
@@ -142,22 +186,6 @@ Sys.setenv(LIB_GMP   = "/mingw64")
 # For more information, visit
 #     https://github.com/r-windows/docs/blob/master/packages.md#readme
 
-if (!require("pak", character.only = TRUE)) {
-    # install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
-    try(
-        install.packages(
-            'pak',
-            repos = sprintf(
-                'https://r-lib.github.io/p/pak/devel/%s/%s/%s',
-                .Platform$pkgType,
-                R.Version()$os,
-                R.Version()$arch
-            )
-        )
-    )
-    sessioninfo::session_info();
-}
-
 # **** IMPORTANT: Run this command from the command line ****
 # RScript --verbose -e "try(pak::pkg_install('tidyverse/glue', upgrade = TRUE, dependencies = pkgdepends::as_pkg_dependencies('all'))); sessioninfo::session_info();"
 
@@ -177,8 +205,14 @@ if (length(dupPkgs) != 0) {
     stop(simpleError(msg))
 }
 
-pak::pkg_install(
-    as.character(PkgsToInstall$repo_name),
-    upgrade = TRUE,
-    ask = TRUE,
-    dependencies = pkgdepends::as_pkg_dependencies('all'))
+# pak::pkg_install(
+#     as.character(PkgsToInstall$repo_name),
+#     upgrade = TRUE,
+#     ask = TRUE,
+#     dependencies = pkgdepends::as_pkg_dependencies('all'))
+
+remotes::install_github(
+    repo = PkgsToInstall$repo_name,
+    force = PkgsToInstall$force_build,
+    build_manual = PkgsToInstall$build_manuals,
+    build_vignettes = PkgsToInstall$build_vignettes)
