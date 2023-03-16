@@ -205,14 +205,22 @@ if (length(dupPkgs) != 0) {
     stop(simpleError(msg))
 }
 
+for (pkgName in PkgsToInstall$repo_name) {
+    pak::pkg_install(
+        as.character(pkgName),
+        upgrade = FALSE,
+        ask = FALSE,
+        dependencies = pkgdepends::as_pkg_dependencies('all'))
+}
+
 # pak::pkg_install(
 #     as.character(PkgsToInstall$repo_name),
 #     upgrade = TRUE,
 #     ask = TRUE,
 #     dependencies = pkgdepends::as_pkg_dependencies('all'))
 
-remotes::install_github(
-    repo = PkgsToInstall$repo_name,
-    force = PkgsToInstall$force_build,
-    build_manual = PkgsToInstall$build_manuals,
-    build_vignettes = PkgsToInstall$build_vignettes)
+# remotes::install_github(
+#     repo = PkgsToInstall$repo_name,
+#     force = PkgsToInstall$force_build,
+#     build_manual = PkgsToInstall$build_manuals,
+#     build_vignettes = PkgsToInstall$build_vignettes)
