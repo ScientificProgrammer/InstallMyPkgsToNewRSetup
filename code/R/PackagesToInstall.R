@@ -4,6 +4,8 @@
 pkgCSVFile          <- "data/PkgsToInstall.csv"
 NUM_CPUS_TO_BLD_SRC <- 4
 
+install.packages("sessioninfo")
+
 installPkgsFromSrc <- function(pkgNames) {
     rslts <- lapply(pkgNames, function(pkgName) {
         msg <- NULL
