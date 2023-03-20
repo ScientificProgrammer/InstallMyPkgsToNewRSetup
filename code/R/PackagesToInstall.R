@@ -2,9 +2,11 @@
 # https://stat.ethz.ch/pipermail/r-package-devel/2017q4/002187.html
 
 pkgCSVFile          <- "data/PkgsToInstall.csv"
-NUM_CPUS_TO_BLD_SRC <- 4
+NUM_CPUS_TO_BLD_SRC <- 8
 
-install.packages("sessioninfo")
+if (!require(sessioninfo)) {
+    install.packages("sessioninfo")    
+}
 
 installPkgsFromSrc <- function(pkgNames) {
     rslts <- lapply(pkgNames, function(pkgName) {
