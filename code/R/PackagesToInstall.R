@@ -209,12 +209,28 @@ if (length(dupPkgs) != 0) {
     stop(simpleError(msg))
 }
 
+header_string <- "****************************************************************************"
+
 for (pkgName in PkgsToInstall$repo_name) {
+    pkg_install_name_str <- paste("Installing", pkgName, sep = " ", collapse = " ")
+    
+    cat(header_string, "\n")
+    cat(
+        "*",
+        pkg_install_name_str,
+        paste(rep(
+            " ",
+            nchar(header_string) - nchar(pkg_install_name_str) - 5
+        ), sep = "", collapse = ""),
+        "*\n"
+    )
+    cat(header_string, "\n")
     pak::pkg_install(
         as.character(pkgName),
         upgrade = FALSE,
         ask = FALSE,
         dependencies = pkgdepends::as_pkg_dependencies('all'))
+    cat("\n\n\n")
 }
 
 # pak::pkg_install(
