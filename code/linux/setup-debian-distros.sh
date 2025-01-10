@@ -37,3 +37,5 @@ sudo apt install -y texlive-latex-base 		# Contains 'pdflatex'
 sudo apt install -y pktools
 sudo apt install -y pktools-dev
 
+# Required for r-lib/gargle
+sudo apt install -y libsodium-dev
