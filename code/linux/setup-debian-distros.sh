@@ -43,8 +43,6 @@ SetPkgArrays() {
         texlive-latex-base
         pktools
         pktools-dev
-        # libgdal-dev
-        # libmariadb-dev
         libmysqlclient-dev
         libpq-dev
         unixodbc-dev
@@ -57,8 +55,15 @@ SetPkgArrays() {
         libfreetype6-dev
         libssl-dev
         libudunits2-dev
-        libnode-dev
+        libnode-dev         # libnode-dev --> jeroen/V8
         libsodium-dev
+        chromium
+        cargo               # yihui/knitr --> gifsky --> cargo (needed for rust compiler)
+        libgl1-mesa-dev     # yihui/knitr --> rgl --> libgl1-mesa-dev
+        libglu1-mesa-dev    # yihui/knitr --> rgl --> libglu1-mesa-dev
+        rustc               # yihui/knitr --> gifsky --> rustc
+        gdal-bin            # tidyverse/ggplot2 --> sf --> gdal-bin
+        libpoppler-cpp-dev  # rstudio/pagedown --> pdftools --> libpoppler-cpp-dev
     )
 
     declare -ag CMAKE_DEB_PKGS=(
@@ -82,7 +87,8 @@ InstallOrUpdatePackages() {
 
     printf "\n\n"
     printf "**********************************************\n"
-    PrintBashSrcMsg "Attempting to install cmake and related packages.\n"
+    PrintBashSrcMsg "Attempting to install (or upgrade)\n"
+    PrintBashSrcMsg "cmake and related packages.\n"
     printf "**********************************************\n"
     sudo apt install "${CMAKE_DEB_PKGS:-}" 2>/dev/null
     printf "**********************************************\n"
