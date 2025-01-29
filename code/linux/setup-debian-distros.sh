@@ -1,66 +1,134 @@
-#!/usr/bin/env bash
+# For Markdown tool support
 
-# REPO ORIGIN:
-#   https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup.git
-# 
-# FILENAME:
-#   ./code/linux/setup-debian-distros.sh
-# 
-# PURPOSE:
-#   For Debian based Linux distros, such as Debian, Ubuntu, Linux Mint, etc,
-#   install the system packages that are required to run 
-# 
-# USAGE:
-#    1. Clone the repo containing this file.
-#
-#       From the command line, navigate to the directory where you want the
-#       repo containing this script to be located. Here's an example.
-#       
-#   2.  Source this script.
-#   
-#
-# EXAMPLE:
-#   cd ~/Projects/git-repos/github/
-#   git clone https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup.git
-#   cd InstallMyPkgsToNewRSetup/
-#   source ./code/linux/setup-debian-distros.sh
-#
-
-install_pkgs_for_r() {
-    # For Markdown tool support
-    sudo apt install -y pandoc                  # pandoc install time is lengthy
-    sudo apt install -y texlive-latex-base 		# Contains 'pdflatex'
-    sudo apt install -y pktools
-    sudo apt install -y pktools-dev
-    
-    # Install packages required to build rgdal
-    sudo apt install -y libgdal-dev
-
-    # Install packages required to build DB connectors
-    sudo apt install -y libmariadb-dev
-    sudo apt install -y libmysqlclient-dev
-    sudo apt install -y libpq-dev
-    sudo apt install -y unixodbc-dev
-    
-    # Install packages required to build image procesing packages
-    sudo apt install -y libjpeg-dev
-    sudo apt install -y libmagick++-dev
-    sudo apt install -y libpng-dev
-    sudo apt install -y libtiff5-dev
-    
-    # Install packages required to build misc packages
-    sudo apt install -y libarchive-dev          # archive handling libraries
-    sudo apt install -y libavfilter-dev 		# ffmpeg libraries
-    sudo apt install -y libfreetype6-dev 		# FreeType 2 font engine 
-    sudo apt install -y libssl-dev 			    # OpenSSL project's implementation 
-    sudo apt install -y libudunits2-dev 		# units of physical quantities
-    
-    # On Debian based systems, use libnode-dev to get the
-    # functionality associated with libv8-dev
-    sudo apt install -y libnode-dev
-
-    # Required for r-lib/gargle
-    sudo apt install -y libsodium-dev
+PrintBashSrcMsg() {
+    if [[ -z "$1" ]]; then
+        return 1;
+    fi
+    printf "%s: %b" "${BASH_SOURCE[0]}" "$1"
 }
 
-time install_pkgs_for_r
+PrintNotes() {
+    printf "\n\n"
+    printf "**********************************************\n"
+    PrintBashSrcMsg "This bash shell script attempts to install or upgrade all system packages\n"
+    PrintBashSrcMsg "that will be required by the R packages to be installed by\n"
+    PrintBashSrcMsg "<REPO_ORIGIN>/code/R/PackagesToInstall.R\n"
+    PrintBashSrcMsg "This script is designed only for Debian based Linux distros.\n"
+    PrintBashSrcMsg '
+NOTES:
+    - The time required to install '\'pandoc\'' is lengthy. Even
+      with a relatively modern computer and nominally fast network
+      connection, this package can require 30 - 90 minutes to install.
+
+    - The '\'texlive-latex-base\'' package contains '\'pdflatex\''.
+
+    - On Debian based systems, the '\'libnode-dev\'' is used to get the
+      functionality associated with '\'libv8-dev\'' package.
+
+    - '\'libsodium-dev\'' is required for '\'r-lib/gargle\''.
+
+    - '\'libavfilter-dev\'' contains '\'ffmpeg\'' libraries.
+'
+    printf "**********************************************\n"
+}
+
+SetPkgArrays() {
+
+    declare -ag R_DEB_PKGS=(
+        libcurl4-openssl-dev
+        libgit2-dev
+        gsfonts
+        pandoc
+        libglpk-dev
+        texlive-latex-base
+        pktools
+        pktools-dev
+        libmysqlclient-dev
+        libpq-dev
+        unixodbc-dev
+        libjpeg-dev
+        libmagick++-dev
+        libpng-dev
+        libtiff5-dev
+        libarchive-dev
+        libavfilter-dev
+        libfreetype6-dev
+        libssl-dev
+        libudunits2-dev
+        libnode-dev         # libnode-dev --> jeroen/V8
+        libsodium-dev
+        chromium
+        cargo               # yihui/knitr --> gifsky --> cargo (needed for rust compiler)
+        libgl1-mesa-dev     # yihui/knitr --> rgl --> libgl1-mesa-dev
+        libglu1-mesa-dev    # yihui/knitr --> rgl --> libglu1-mesa-dev
+        rustc               # yihui/knitr --> gifsky --> rustc
+        gdal-bin            # tidyverse/ggplot2 --> sf --> gdal-bin
+        libpoppler-cpp-dev  # rstudio/pagedown --> pdftools --> libpoppler-cpp-dev
+    )
+
+    declare -ag CMAKE_DEB_PKGS=(
+        cmake
+        cmake-data
+        cmake-doc
+        cmake-format
+        cmake-qt-gui
+        dh-cmake
+        extra-cmake-modules
+        extra-cmake-modules-doc
+    )
+}
+
+UnsetPkgArrays() {
+    unset R_DEB_PKGS
+    unset CMAKE_DEB_PKGS
+}
+
+InstallOrUpdatePackages() {
+
+    printf "\n\n"
+    printf "**********************************************\n"
+    PrintBashSrcMsg "Attempting to install (or upgrade)\n"
+    PrintBashSrcMsg "cmake and related packages.\n"
+    printf "**********************************************\n"
+    sudo apt install "${CMAKE_DEB_PKGS:-}" 2>/dev/null
+    printf "**********************************************\n"
+    printf "\n\n"
+
+    printf "**********************************************\n"
+    PrintBashSrcMsg "Attempting to install libfribidi-dev and libharfbuzz-dev\n"
+    printf "**********************************************\n"
+    sudo apt install libfribidi-dev libharfbuzz-dev 2>/dev/null  # Required for r-lib/lobstr
+    printf "**********************************************\n"
+    printf "\n\n"
+
+    for pkg in "${R_DEB_PKGS[@]}"; do
+        printf "**********************************************\n"
+        printf "Attempting to install %s\n" "${pkg:-}"
+        printf "**********************************************\n"
+        sudo apt install "${pkg:-}" -y 2>/dev/null
+        printf "**********************************************\n"
+        printf "\n\n"
+    done
+}
+
+PrintNotes
+SetPkgArrays
+printf "\n\n"
+printf "**********************************************\n"
+PrintBashSrcMsg "Preparing to update system package lists.\n"
+printf "**********************************************\n"
+sudo apt update
+printf "**********************************************\n"
+printf "\n\n"
+printf "**********************************************\n"
+PrintBashSrcMsg "Preparing to install packages.\n"
+printf "**********************************************\n"
+InstallOrUpdatePackages | sed -E 's/^/    /'
+printf "**********************************************\n"
+PrintBashSrcMsg "Review the output and check for errors. If any errors are found,\n"
+PrintBashSrcMsg "attempt to resolve them before running the R package installer script\n"
+PrintBashSrcMsg "<REPO_ORIGIN>/code/R/PackagesToInstall.R\n"
+printf "**********************************************\n"
+printf "\n\n"
+UnsetPkgArrays
+
