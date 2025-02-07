@@ -5,40 +5,40 @@ pkgCSVFile          <- "data/PkgsToInstall.csv"
 NUM_CPUS_TO_BLD_SRC <- 8
 
 if (!require(sessioninfo)) {
-    install.packages("sessioninfo")    
+  install.packages("sessioninfo")    
 }
 
 installPkgsFromSrc <- function(pkgNames) {
-    rslts <- lapply(pkgNames, function(pkgName) {
-        msg <- NULL
-            
-        if (!pkgName %in% installed.packages()) {
-            if (pkgName == 'pak') {
-                if (!require("pak", character.only = TRUE)) {
-                    # install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
-                    try(
-                        install.packages(
-                            'pak',
-                            repos = sprintf(
-                                'https://r-lib.github.io/p/pak/devel/%s/%s/%s',
-                                .Platform$pkgType,
-                                R.Version()$os,
-                                R.Version()$arch
-                            )
-                        )
-                    )
-                }
-            } else {
-                install.packages(pkgName, type = 'source', Ncpus = NUM_CPUS_TO_BLD_SRC)
-            }
-            msg <- paste0("package ", sprintf("%-15s", pkgName), " was installed successfully from source.")
-        } else {
-            msg <- paste0("package ", sprintf("%-15s", pkgName), " was already installed.")
+  rslts <- lapply(pkgNames, function(pkgName) {
+    msg <- NULL
+    
+    if (!pkgName %in% installed.packages()) {
+      if (pkgName == 'pak') {
+        if (!require("pak", character.only = TRUE)) {
+          # install.packages("pak", repos = "https://r-lib.github.io/p/pak/devel/")
+          try(
+            install.packages(
+              'pak',
+              repos = sprintf(
+                'https://r-lib.github.io/p/pak/devel/%s/%s/%s',
+                .Platform$pkgType,
+                R.Version()$os,
+                R.Version()$arch
+              )
+            )
+          )
         }
-        return(msg)
-    })
-    names(rslts) <- pkgNames
-    return(rslts)
+      } else {
+        install.packages(pkgName, type = 'source', Ncpus = NUM_CPUS_TO_BLD_SRC)
+      }
+      msg <- paste0("package ", sprintf("%-15s", pkgName), " was installed successfully from source.")
+    } else {
+      msg <- paste0("package ", sprintf("%-15s", pkgName), " was already installed.")
+    }
+    return(msg)
+  })
+  names(rslts) <- pkgNames
+  return(rslts)
 }
 
 # To install the development version of 'jeroen/curl' from Github, run the
@@ -46,27 +46,27 @@ installPkgsFromSrc <- function(pkgNames) {
 #
 #      https://github.com/jeroen/curl#development-version
 if (!require('curl')) {
-    try(
-        install.packages(
-            pkgs            = 'https://github.com/jeroen/curl/archive/master.tar.gz',
-            repos           = NULL,
-            build_vignettes = TRUE,
-            build_manual    = TRUE,
-            force           = FALSE
-        )
+  try(
+    install.packages(
+      pkgs            = 'https://github.com/jeroen/curl/archive/master.tar.gz',
+      repos           = NULL,
+      build_vignettes = TRUE,
+      build_manual    = TRUE,
+      force           = FALSE
     )
-    sessioninfo::session_info()
+  )
+  sessioninfo::session_info()
 }
 
 rslts <- installPkgsFromSrc(c("RCurl", "here", "remotes", "pkgdepends", "pak"))
 invisible(lapply(rslts, function(x) {cat(x, "\n")}))
 
 try(
-    pak::pkg_install(
-        pkg          = 'r-lib/rlang',
-        upgrade      = TRUE,
-        dependencies = pkgdepends::as_pkg_dependencies('all')
-    )
+  pak::pkg_install(
+    pkg          = 'r-lib/rlang',
+    upgrade      = TRUE,
+    dependencies = pkgdepends::as_pkg_dependencies('all')
+  )
 )
 
 pkgCSVFilePath <- here::here(pkgCSVFile)
@@ -142,7 +142,7 @@ pkgCSVFilePath <- here::here(pkgCSVFile)
 # rm(x2)
 
 if (is.na(getOption("repos")["CRAN"])) {
-    options(repos = structure(c(CRAN = "https://cran.microsoft.com/"), RStudio = TRUE))
+  options(repos = structure(c(CRAN = "https://cran.microsoft.com/"), RStudio = TRUE))
 }
 
 Sys.setenv(GLPK_HOME = "/mingw64")
@@ -203,34 +203,36 @@ PkgsToInstall <- read.csv(pkgCSVFilePath, strip.white = TRUE)
 dupPkgs <- names(which(table(PkgsToInstall$repo) > 1))
 
 if (length(dupPkgs) != 0) {
-    msg <- paste(length(dupPkgs), "duplicate package", ifelse(length(dupPkgs) > 1, "names were", "name was"), "found.")
-    msg <- paste0(msg, "\n  Please update \"", pkgCSVFile, "\" to remove the duplicates.\n")
-    msg <- paste0(msg, paste0("      \"", dupPkgs, "\"", collapse = "\n"), sep = "\n")
-    stop(simpleError(msg))
+  msg <- paste(length(dupPkgs), "duplicate package", ifelse(length(dupPkgs) > 1, "names were", "name was"), "found.")
+  msg <- paste0(msg, "\n  Please update \"", pkgCSVFile, "\" to remove the duplicates.\n")
+  msg <- paste0(msg, paste0("      \"", dupPkgs, "\"", collapse = "\n"), sep = "\n")
+  stop(simpleError(msg))
 }
 
 header_string <- "****************************************************************************"
 
 for (pkgName in PkgsToInstall$repo_name) {
-    pkg_install_name_str <- paste("Installing", pkgName, sep = " ", collapse = " ")
-    
-    cat(header_string, "\n")
-    cat(
-        "*",
-        pkg_install_name_str,
-        paste(rep(
-            " ",
-            nchar(header_string) - nchar(pkg_install_name_str) - 5
-        ), sep = "", collapse = ""),
-        "*\n"
-    )
-    cat(header_string, "\n")
+  pkg_install_name_str <- paste("Installing", pkgName, sep = " ", collapse = " ")
+  
+  cat(header_string, "\n")
+  cat(
+    "*",
+    pkg_install_name_str,
+    paste(rep(
+      " ",
+      nchar(header_string) - nchar(pkg_install_name_str) - 5
+    ), sep = "", collapse = ""),
+    "*\n"
+  )
+  cat(header_string, "\n")
+  try(
     pak::pkg_install(
-        as.character(pkgName),
-        upgrade = FALSE,
-        ask = FALSE,
-        dependencies = pkgdepends::as_pkg_dependencies('all'))
-    cat("\n\n\n")
+      as.character(pkgName),
+      upgrade = FALSE,
+      ask = FALSE,
+      dependencies = pkgdepends::as_pkg_dependencies('all'))
+  )
+  cat("\n\n\n")
 }
 
 # pak::pkg_install(
