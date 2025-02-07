@@ -1,4 +1,5 @@
 "repo_name","force_build","dependencies","build_vignettes","build_manuals"
+"r-hub/pkgsearch",FALSE,TRUE,TRUE,TRUE
 "kiernann/gluedown",FALSE,TRUE,TRUE,TRUE
 "r-dbi/DBI",FALSE,TRUE,TRUE,TRUE
 "r-dbi/odbc",FALSE,TRUE,TRUE,TRUE
@@ -31,6 +32,7 @@
 "r-lib/httr2",FALSE,TRUE,TRUE,TRUE
 "r-lib/later",FALSE,TRUE,TRUE,TRUE
 "r-lib/lintr",FALSE,TRUE,TRUE,TRUE
+"REditorSupport/languageserver",FALSE,TRUE,TRUE,TRUE
 "r-lib/liteq",FALSE,TRUE,TRUE,TRUE
 "r-lib/lobstr",FALSE,TRUE,TRUE,TRUE
 "r-lib/mockery",FALSE,TRUE,TRUE,TRUE

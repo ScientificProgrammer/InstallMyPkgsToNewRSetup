@@ -1,0 +1,8 @@
+linters: linters_with_defaults(
+  line_length_linter(80L),
+  indentation_linter(
+  indent = 2L,
+  hanging_indent_style = "tidy",
+  assignment_as_infix = TRUE),
+  commented_code_linter = NULL)
+encoding: "UTF-8"
