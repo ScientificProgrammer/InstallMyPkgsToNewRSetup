@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # For Markdown tool support
 
 PrintBashSrcMsg() {
@@ -35,6 +37,9 @@ NOTES:
 SetPkgArrays() {
 
     declare -ag R_DEB_PKGS=(
+        protobuf-compiler
+        libprotobuf-dev
+        libprotoc-dev
         libcurl4-openssl-dev
         libgit2-dev
         gsfonts
