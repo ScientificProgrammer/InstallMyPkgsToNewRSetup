@@ -37,7 +37,6 @@
 "r-lib/withr",FALSE,TRUE,TRUE,TRUE
 "r-lib/xml2",FALSE,TRUE,TRUE,TRUE
 "r-lib/here",FALSE,TRUE,TRUE,TRUE
-"r-lib/memtools",FALSE,TRUE,TRUE,TRUE
 "r-lib/pkgapi",FALSE,TRUE,TRUE,TRUE
 "r-lib/pkgdepends",FALSE,TRUE,TRUE,TRUE
 "r-lib/pkgload",FALSE,TRUE,TRUE,TRUE

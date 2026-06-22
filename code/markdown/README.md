@@ -113,8 +113,6 @@ Rows with `dependencies=TRUE` use hard dependencies by default: `Depends`, `Impo
 
 On Jammy/Mint hosts with apt-managed `raster`/`terra`, the installer uses `leaflet@2.1.2` for the `rstudio/leaflet` row. Current `leaflet` requires newer `raster`, which requires newer `terra`; current `terra` does not compile against the older GDAL stack on this host.
 
-The installer skips known-problem packages by default. Currently, `r-lib/memtools` is skipped because it fails to compile against R 4.6 internals on this host. Use `--include-known-problem-packages` to retry skipped packages.
-
 The script installs R packages specified in [data/PkgsToInstall.csv](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup/blob/main/data/PkgsToInstall.csv). If this file does not contain packages that you need or contains ones that you do not want, edit it and rerun `--validate-only`.
 
 ### For Windows

@@ -18,10 +18,6 @@ LEAFLET_COMPAT_MIN_RASTER <- "3.6.3"
 LEAFLET_COMPAT_MIN_TERRA <- "1.8-5"
 LEAFLET_COMPAT_REQUIRED_PKGS <- c("base64enc", "markdown", "raster", "sp", "terra")
 PKG_INSTALL_MAX_ATTEMPTS <- 2L
-KNOWN_PROBLEM_REPOS <- c("r-lib/memtools")
-KNOWN_PROBLEM_REASONS <- c(
-  "r-lib/memtools" = "fails to compile against R 4.6 internals on this host"
-)
 V8_STATIC_ENVVARS <- c("DOWNLOAD_STATIC_LIBV8", "V8_PKG_CFLAGS", "V8_PKG_LIBS", "INCLUDE_DIR", "LIB_DIR")
 
 usage <- function(status = 0L) {
@@ -41,8 +37,6 @@ usage <- function(status = 0L) {
     "  --v8-mode MODE    V8 build mode: auto, static, or system. Default: auto\n",
     "  --log-dir DIR     Write transcript and result artifacts to DIR. Default: tmp\n",
     "  --no-log          Disable the default transcript and result artifact logging.\n",
-    "  --include-known-problem-packages\n",
-    "                    Attempt packages that are skipped by default.\n",
     "  --help, -h        Show this help text.\n",
     sep = ""
   )
@@ -58,8 +52,7 @@ parse_args <- function(args) {
     dependency_mode = DEFAULT_DEPENDENCY_MODE,
     v8_mode = "auto",
     log_dir = DEFAULT_LOG_DIR,
-    log_enabled = TRUE,
-    include_known_problem_packages = FALSE
+    log_enabled = TRUE
   )
 
   i <- 1L
@@ -102,8 +95,6 @@ parse_args <- function(args) {
       parsed$log_dir <- args[[i]]
     } else if (identical(arg, "--no-log")) {
       parsed$log_enabled <- FALSE
-    } else if (identical(arg, "--include-known-problem-packages")) {
-      parsed$include_known_problem_packages <- TRUE
     } else if (arg %in% c("--help", "-h")) {
       usage(0L)
     } else {
@@ -504,7 +495,6 @@ write_run_metadata <- function(metadata_file,
                                csv_path,
                                pkg_table,
                                v8_strategy,
-                               skipped_repos,
                                paths,
                                started_at,
                                run_status,
@@ -533,7 +523,6 @@ write_run_metadata <- function(metadata_file,
     "requested_v8_mode",
     "resolved_v8_mode",
     "v8_reason",
-    "skipped_repos",
     "log_file",
     "results_file",
     "metadata_file",
@@ -565,7 +554,6 @@ write_run_metadata <- function(metadata_file,
     args$v8_mode,
     v8_strategy$mode,
     v8_strategy$reason,
-    collapse_value(skipped_repos),
     paths$log_file,
     paths$results_file,
     paths$metadata_file,
@@ -850,38 +838,6 @@ install_one_github_pkg <- function(repo_name, install_dependencies, dependency_m
   )
 }
 
-skip_results <- function(pkg_table, skipped_repos) {
-  if (length(skipped_repos) == 0L) {
-    return(empty_results())
-  }
-
-  skipped_table <- pkg_table[pkg_table$repo_name %in% skipped_repos, , drop = FALSE]
-  if (nrow(skipped_table) == 0L) {
-    return(empty_results())
-  }
-
-  now <- format_run_time(Sys.time())
-  data.frame(
-    started_at = rep(now, nrow(skipped_table)),
-    finished_at = rep(now, nrow(skipped_table)),
-    phase = "bulk",
-    repo_name = skipped_table$repo_name,
-    install_ref = skipped_table$repo_name,
-    status = "skipped",
-    elapsed_sec = 0,
-    message = unname(KNOWN_PROBLEM_REASONS[skipped_table$repo_name]),
-    stringsAsFactors = FALSE
-  )
-}
-
-packages_to_skip <- function(pkg_table, include_known_problem_packages) {
-  if (isTRUE(include_known_problem_packages)) {
-    return(character())
-  }
-
-  intersect(pkg_table$repo_name, KNOWN_PROBLEM_REPOS)
-}
-
 install_bootstrap_github_pkgs <- function(dependency_mode, v8_strategy, results_file) {
   results <- vector("list", length(BOOTSTRAP_GITHUB_PKGS))
 
@@ -912,8 +868,8 @@ install_bootstrap_github_pkgs <- function(dependency_mode, v8_strategy, results_
   do.call(rbind, results)
 }
 
-install_bulk_github_pkgs <- function(pkg_table, dependency_mode, v8_strategy, skipped_repos, results_file) {
-  install_table <- pkg_table[!(pkg_table$repo_name %in% skipped_repos), , drop = FALSE]
+install_bulk_github_pkgs <- function(pkg_table, dependency_mode, v8_strategy, results_file) {
+  install_table <- pkg_table
   results <- vector("list", nrow(install_table))
 
   for (row_idx in seq_len(nrow(install_table))) {
@@ -941,13 +897,10 @@ install_bulk_github_pkgs <- function(pkg_table, dependency_mode, v8_strategy, sk
   } else {
     do.call(rbind, results)
   }
-  skipped_results <- skip_results(pkg_table, skipped_repos)
-  append_result_rows(results_file, skipped_results)
-
-  rbind(installed_results, skipped_results)
+  installed_results
 }
 
-print_install_plan <- function(pkg_table, v8_strategy, dependency_mode, skipped_repos) {
+print_install_plan <- function(pkg_table, v8_strategy, dependency_mode) {
   cat(sprintf("Validated %d package row(s).\n", nrow(pkg_table)))
   cat(sprintf("\nDependency mode: %s\n", dependency_mode))
   cat(sprintf("\nV8 build mode: %s\n", v8_strategy$mode))
@@ -959,12 +912,6 @@ print_install_plan <- function(pkg_table, v8_strategy, dependency_mode, skipped_
     cat(sprintf("  Reason: %s\n", leaflet_compat_reason()))
   }
 
-  if (length(skipped_repos) > 0L) {
-    cat("\nSkipped package(s):\n")
-    for (repo_name in skipped_repos) {
-      cat(sprintf("  %s - %s\n", repo_name, KNOWN_PROBLEM_REASONS[[repo_name]]))
-    }
-  }
   cat("\nBootstrap CRAN package(s):\n")
   cat(sprintf("  %s\n", BOOTSTRAP_CRAN_PKGS), sep = "")
   cat("\nBootstrap GitHub package(s):\n")
@@ -1024,7 +971,6 @@ main <- function() {
   set_cran_repo()
   pkg_table <- read_pkg_table(csv_path)
   v8_strategy <- resolve_v8_strategy(args$v8_mode, pkg_table)
-  skipped_repos <- packages_to_skip(pkg_table, args$include_known_problem_packages)
 
   print_run_artifacts(paths)
   initialize_results_file(paths$results_file)
@@ -1035,7 +981,6 @@ main <- function() {
     csv_path = csv_path,
     pkg_table = pkg_table,
     v8_strategy = v8_strategy,
-    skipped_repos = skipped_repos,
     paths = paths,
     started_at = started_at,
     run_status = "started",
@@ -1043,7 +988,7 @@ main <- function() {
   )
 
   if (args$validate_only || args$dry_run) {
-    print_install_plan(pkg_table, v8_strategy, args$dependency_mode, skipped_repos)
+    print_install_plan(pkg_table, v8_strategy, args$dependency_mode)
     if (args$dry_run) {
       cat("\nDry run only; no R packages were installed.\n")
     }
@@ -1054,7 +999,6 @@ main <- function() {
       csv_path = csv_path,
       pkg_table = pkg_table,
       v8_strategy = v8_strategy,
-      skipped_repos = skipped_repos,
       paths = paths,
       started_at = started_at,
       run_status = run_status,
@@ -1075,7 +1019,6 @@ main <- function() {
     pkg_table,
     args$dependency_mode,
     v8_strategy,
-    skipped_repos,
     paths$results_file
   )
   results <- rbind(bootstrap_results, bulk_results)
@@ -1094,7 +1037,6 @@ main <- function() {
     csv_path = csv_path,
     pkg_table = pkg_table,
     v8_strategy = v8_strategy,
-    skipped_repos = skipped_repos,
     paths = paths,
     started_at = started_at,
     run_status = run_status,
