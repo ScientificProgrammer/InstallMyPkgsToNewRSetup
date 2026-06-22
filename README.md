@@ -43,21 +43,79 @@ cd InstallMyPkgsToNewRSetup
 
 ---
 
-#### Step 1: Install Required Debian System Packages
+#### Step 1: Run the Debian Preflight
 
-After cloning the repo to your local computer and setting the repo top level directory as your default directory, run the following command to install Debian system packages that will be required by some of the R packages. This script relies heavily on the `apt` package manager.
+After cloning the repo and switching to the repo top level directory, run a dry run first. The script checks for broken `apt`/`dpkg` state, missing package candidates, and TeX command shadowing before it attempts any install.
 
 ```bash
-source code/linux/setup-debian-distros.sh
+bash code/linux/setup-debian-distros.sh --dry-run
 ```
 
-#### Step 2: Run the R Script to Perform Bulk Package Installation
+Logs are written to `tmp/output_of_setup-debian-distros-dot-sh.<timestamp>.txt`.
+
+#### Step 2: Repair Any System Blockers
+
+Resolve every preflight error before installing more packages. One important blocker is a mixed TeX installation: if `/usr/local/texlive/...` commands shadow distro TeX commands, Debian package maintainer scripts can configure `tex-common` against the wrong TeX tree.
+
+On a host where `apt` should own TeX, move the TeX Live symlinks out of `/usr/local/bin`, then repair `dpkg`:
+
+```bash
+backup_dir="/usr/local/bin/texlive_2025_links_disabled.$(date +%Y%m%d_%H%M%S)"
+sudo mkdir -p "$backup_dir"
+
+for name in fmtutil fmtutil-sys fmtutil-user kpsewhich mktexlsr updmap updmap-sys pdftex luatex xetex tex latex pdflatex lualatex xelatex tlmgr; do
+    path="/usr/local/bin/$name"
+    if [[ -L "$path" ]] && readlink "$path" | grep -q '^/usr/local/texlive/'; then
+        sudo mv "$path" "$backup_dir/"
+    fi
+done
+
+hash -r
+which -a fmtutil-sys kpsewhich mktexlsr updmap-sys pdftex luatex xetex
+kpsewhich -all fmtutil.cnf
+sudo dpkg --configure -a
+sudo apt-get -f install
+```
+
+#### Step 3: Install Required Debian System Packages
+
+After the preflight passes, run the installer. Add `--yes` when you want non-interactive `apt-get install` behavior.
+
+```bash
+bash code/linux/setup-debian-distros.sh --yes
+```
+
+On hosts with NodeSource `nodejs`, the Linux setup script intentionally skips Ubuntu's `libnode-dev` package because both packages own files under `/usr/include/node`. The R installer handles `jeroen/V8` separately by using static `libv8` in its default `--v8-mode auto` mode.
+
+#### Step 4: Validate the R Package Manifest
+
+```bash
+Rscript code/R/PackagesToInstall.R --validate-only
+```
+
+#### Step 5: Run the R Bulk Package Installer
 
 ```bash
 Rscript code/R/PackagesToInstall.R
 ```
 
-The script will begin installing R packages that are specified in [data/PkgsToInstall-010-original.csv](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup/blob/main/data/PkgsToInstall.csv). If this file does not contain packages that you need or contains ones that you do not want, feel free to edit it.
+The R installer writes strong logs by default. Each run creates these artifacts under `tmp/`, or under the directory passed with `--log-dir DIR`:
+
+- `output_of_PackagesToInstall-dot-R.<timestamp>.txt`: full stdout/stderr transcript.
+- `packages_to_install_results.<timestamp>.csv`: package-level results with timestamps, status, elapsed seconds, and error messages.
+- `packages_to_install_run_metadata.<timestamp>.csv`: run metadata, including command, R version, dependency mode, V8 mode, and package manifest path.
+
+Use `--no-log` only when you deliberately want to disable these artifacts.
+
+The R installer supports `--v8-mode auto`, `--v8-mode static`, and `--v8-mode system`. Use the default `auto` mode unless you deliberately want to force a system `libnode-dev`/`libv8` build.
+
+Rows with `dependencies=TRUE` use hard dependencies by default: `Depends`, `Imports`, and `LinkingTo`. This avoids pulling large optional dependency trees such as current `terra` source builds on Jammy/Mint hosts. Use `--dependency-mode all` only when you deliberately want optional `Suggests`/`Enhances` dependency trees.
+
+On Jammy/Mint hosts with apt-managed `raster`/`terra`, the installer uses `leaflet@2.1.2` for the `rstudio/leaflet` row. Current `leaflet` requires newer `raster`, which requires newer `terra`; current `terra` does not compile against the older GDAL stack on this host.
+
+The installer skips known-problem packages by default. Currently, `r-lib/memtools` is skipped because it fails to compile against R 4.6 internals on this host. Use `--include-known-problem-packages` to retry skipped packages.
+
+The script installs R packages specified in [data/PkgsToInstall.csv](https://github.com/ScientificProgrammer/InstallMyPkgsToNewRSetup/blob/main/data/PkgsToInstall.csv). If this file does not contain packages that you need or contains ones that you do not want, edit it and rerun `--validate-only`.
 
 ### For Windows
 
@@ -157,4 +215,3 @@ folder. Now, by using `git`, there will be no need for those files going further
 ### WHY DIDN'T YOU IMPLEMENT IT AS A PACKAGE?
 
 SHORT ANSWER: Time.
-
