@@ -337,6 +337,30 @@ install_cran_if_missing <- function(pkg_names, ncpus) {
   invisible(missing)
 }
 
+ensure_writable_library <- function() {
+  writable_libraries <- .libPaths()[
+    dir.exists(.libPaths()) & file.access(.libPaths(), mode = 2L) == 0L
+  ]
+  if (length(writable_libraries) > 0L) {
+    return(invisible(writable_libraries[[1L]]))
+  }
+
+  user_library <- Sys.getenv("R_LIBS_USER", unset = "")
+  if (!nzchar(user_library)) {
+    stop("No writable R library or R_LIBS_USER path is available.", call. = FALSE)
+  }
+
+  dir.create(user_library, recursive = TRUE, showWarnings = FALSE)
+  if (!dir.exists(user_library) || file.access(user_library, mode = 2L) != 0L) {
+    stop(sprintf("Could not create a writable R library at %s.", user_library), call. = FALSE)
+  }
+
+  user_library <- normalizePath(user_library, mustWork = TRUE)
+  .libPaths(c(user_library, .libPaths()))
+  cat(sprintf("Using per-user R library: %s\n", user_library))
+  invisible(user_library)
+}
+
 parse_logical_column <- function(values, column_name) {
   if (is.logical(values)) {
     return(values)
@@ -1012,6 +1036,7 @@ main <- function() {
     return(exit_code)
   }
 
+  ensure_writable_library()
   install_cran_if_missing(BOOTSTRAP_CRAN_PKGS, args$ncpus)
   old_v8_env <- apply_v8_strategy_env(v8_strategy)
   on.exit(restore_envvars(old_v8_env), add = TRUE)
