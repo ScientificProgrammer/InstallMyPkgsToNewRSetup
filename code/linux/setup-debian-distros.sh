@@ -22,8 +22,10 @@ R_DEB_PKGS=(
     libarchive-dev
     libglpk-dev
     libmariadb-dev
+    libmariadb-dev-compat
     libpq-dev
     libsqlite3-dev
+    libuv1-dev
     unixodbc-dev
     graphviz
     pandoc
