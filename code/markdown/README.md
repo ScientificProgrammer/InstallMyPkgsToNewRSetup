@@ -4,10 +4,10 @@
 
 ## Purpose
 
-This repository maintains Eric's personal R workstation bootstrap workflow.
-Its main job is to prepare a new R installation with the system libraries and
-R packages that Eric commonly needs for analysis, reporting, visualization,
-package development, and RStudio-oriented work.
+This repository maintains Eric's personal R bootstrap workflow for headless
+servers and interactive workstations. Its main job is to prepare a new R
+installation with the system libraries and focused R package set needed for
+analysis, reporting, visualization, databases, and package development.
 
 The current maintained path is a Debian-family Linux workflow:
 
@@ -22,19 +22,20 @@ provisioning tool.
 
 ## Support Status
 
-### Linux Mint 21.3 / Ubuntu 22.04 Jammy Family
+### Debian 13 Trixie arm64
 
 Status: current validated path.
 
-This is the environment the current workflow was repaired and validated on.
+The current dependency set and install preflight are validated on Debian 13
+running on arm64. The CRAN `trixie-cran46` repository supplies R 4.6.x.
 
 ### Other Debian-Family Linux Distros
 
 Status: plausible, but not fully validated.
 
 The Linux script checks `/etc/os-release`, package candidates, `apt` repair
-state, TeX command shadowing, and Node/V8 strategy before installing. Package
-names and versions can still differ by distro release.
+state, and TeX command shadowing before installing. Package names and versions
+can still differ by distro release.
 
 ### Non-Debian Linux Distros
 
@@ -88,6 +89,29 @@ cd InstallMyPkgsToNewRSetup
 
 ## Recommended Linux Workflow
 
+### Step 0: Install R
+
+Install current R before running this repository. On Debian 13, use CRAN's
+`trixie-cran46` repository and verify its signing key fingerprint before adding
+the repository:
+
+```text
+95C0 FAF3 8DB3 CCAD 0C08 0A7B DC78 B2DD EABC 47B7
+```
+
+The recommended deb822 source is `/etc/apt/sources.list.d/cran.sources`:
+
+```text
+Types: deb
+URIs: https://cloud.r-project.org/bin/linux/debian/
+Suites: trixie-cran46/
+Components:
+Signed-By: /etc/apt/trusted.gpg.d/cran_debian_key.asc
+```
+
+After `apt-get update`, verify `apt-cache policy r-base` selects CRAN, then
+install `r-base` and `r-base-dev`.
+
 ### Step 1: Run the Debian Preflight
 
 Run a dry run before installing anything:
@@ -106,9 +130,6 @@ This checks:
 - Whether `apt`/`dpkg` already needs repair.
 
 - Whether `/usr/local/texlive/...` commands shadow distro TeX tools.
-
-- Whether NodeSource `nodejs` is installed, in which case Ubuntu's
-  `libnode-dev` is skipped.
 
 Logs are written to:
 
@@ -211,7 +232,7 @@ Options:
   --dry-run
       Validate and print the install plan without installing.
   --ncpus N
-      Number of CPUs for source package builds. Default: 8
+      CPUs for source builds. Default: detected physical CPUs, capped at 4
   --dependency-mode MODE
       hard, soft, all, or none. Default: hard
   --v8-mode MODE
@@ -232,30 +253,30 @@ distro system libraries.
 Use `--dependency-mode all` only when you deliberately want optional `Suggests`
 and `Enhances` dependency trees.
 
-## Current Compatibility Decisions
+## Curated Package Policy
 
-### NodeSource and V8
+The active manifest intentionally stays small. Bootstrap installation covers
+`remotes`, `pak`, and the current GitHub version of `rlang`. The bulk manifest
+contains 15 maintained repositories covering:
 
-On hosts with NodeSource `nodejs`, the Linux setup script intentionally skips
-Ubuntu's `libnode-dev` package because both packages own files under
-`/usr/include/node`. The R installer handles `jeroen/V8` separately by using
-static `libv8` in its default `--v8-mode auto` mode.
+- DBI, ODBC, MariaDB/MySQL, PostgreSQL, SQLite, `dbplyr`, and `pool`.
 
-### Leaflet, Raster, Terra, and GDAL
+- `tidyverse`, `Rcpp`, and `data.table`.
 
-On Jammy/Mint hosts with apt-managed `raster` and `terra`, the installer uses
-`leaflet@2.1.2` for the `rstudio/leaflet` row when needed. Current `leaflet`
-requires newer `raster`, which requires newer `terra`; current `terra` does
-not compile against the older GDAL stack on the validated host.
+- DiagrammeR.
 
-This compatibility path is Linux/Jammy-oriented. It is one reason Windows
-should not be treated as a supported unattended install target yet.
+- `knitr`, `rmarkdown`, Quarto's R package, and `renv`.
 
-### Memtools
+Transitive dependencies are resolved in hard-dependency mode. Packages used
+only occasionally should be installed per project with `renv` rather than
+added to the global bootstrap.
 
-`r-lib/memtools` was removed from the active manifest. It is not on CRAN and
-was found to rely on stale vendored R internals that no longer compile against
-the current R toolchain.
+## RStudio
+
+RStudio is useful on interactive workstations, but it is not required for
+R Markdown or Quarto rendering. The maintained headless path installs the R
+packages, Pandoc, Quarto CLI, and targeted TeX Live components directly.
+RStudio installation remains an optional workstation decision.
 
 ## Windows Suitability
 
@@ -281,9 +302,6 @@ Known gaps:
 
 - No Windows-specific handling for native package system requirements.
 
-- The current `leaflet` compatibility guard assumes the Jammy/Mint apt-managed
-  `raster`/`terra` strategy.
-
 For Windows, start with validation only:
 
 ```bat
@@ -293,7 +311,7 @@ Rscript code/R/PackagesToInstall.R --validate-only --no-log
 Do not expect the full installer to be reliable on a fresh Windows host until a
 Windows-specific preflight and dependency setup path is added.
 
-## Non-Mint Linux Suitability
+## Other Linux Suitability
 
 For Ubuntu, Debian, and other Debian-family hosts, the intended first check is:
 
@@ -308,14 +326,12 @@ Known risk areas across distro releases:
 
 - Package names may differ.
 
-- Package versions may be older or newer than the validated Mint/Jammy host.
+- Package versions may be older or newer than the validated Debian 13 host.
 
-- GDAL, GEOS, PROJ, and TeX package behavior can affect native R packages.
+- TeX package ownership and native development-library versions can affect
+  source package builds.
 
 - Third-party package sources can change candidate versions.
-
-- NodeSource `nodejs` and distro `libnode-dev` must not both own the Node
-  header surface.
 
 For Fedora, Arch, openSUSE, Alpine, or other non-Debian distros, install system
 prerequisites through that distro's package manager first, then use the R
