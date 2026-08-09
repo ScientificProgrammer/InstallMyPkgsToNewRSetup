@@ -1,7 +1,12 @@
 #!/usr/bin/env Rscript
 
 DEFAULT_PKG_CSV <- "data/PkgsToInstall.csv"
-DEFAULT_NUM_CPUS <- 8L
+detected_physical_cpus <- suppressWarnings(parallel::detectCores(logical = FALSE))
+DEFAULT_NUM_CPUS <- if (is.na(detected_physical_cpus)) {
+  1L
+} else {
+  max(1L, min(4L, as.integer(detected_physical_cpus)))
+}
 DEFAULT_DEPENDENCY_MODE <- "hard"
 DEFAULT_LOG_DIR <- "tmp"
 LOG_CHILD_ENVVAR <- "PACKAGES_TO_INSTALL_LOG_CHILD"
@@ -30,7 +35,7 @@ usage <- function(status = 0L) {
     "  --csv PATH         Package CSV path. Default: data/PkgsToInstall.csv\n",
     "  --validate-only   Validate the CSV and exit without installing.\n",
     "  --dry-run         Validate and print the install plan without installing.\n",
-    "  --ncpus N         Number of CPUs for source package builds. Default: 8\n",
+    sprintf("  --ncpus N         CPUs for source builds. Default: %d (host-aware, max 4)\n", DEFAULT_NUM_CPUS),
     "  --dependency-mode MODE\n",
     "                    Dependency mode for rows with dependencies=TRUE:\n",
     "                    hard, soft, all, or none. Default: hard\n",
