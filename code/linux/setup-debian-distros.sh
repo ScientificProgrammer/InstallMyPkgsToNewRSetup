@@ -11,62 +11,46 @@ LOG_DIR="${REPO_ROOT}/tmp"
 SUDO=()
 
 R_DEB_PKGS=(
-    protobuf-compiler
-    libprotobuf-dev
-    libprotoc-dev
+    build-essential
+    git
+    pkg-config
     libcurl4-openssl-dev
     libgit2-dev
-    gsfonts
-    pandoc
-    libglpk-dev
-    texlive-latex-base
-    pktools
-    pktools-dev
-    libmysqlclient-dev
-    libpq-dev
-    unixodbc-dev
-    libjpeg-dev
-    libmagick++-dev
-    libpng-dev
-    libtiff5-dev
-    libarchive-dev
-    libavfilter-dev
-    libfreetype6-dev
     libssl-dev
-    libudunits2-dev
+    libxml2-dev
     libsodium-dev
-    chromium
-    cargo
-    libgl1-mesa-dev
-    libglu1-mesa-dev
-    rustc
-    gdal-bin
-    libpoppler-cpp-dev
+    libarchive-dev
+    libglpk-dev
+    libmariadb-dev
+    libpq-dev
+    libsqlite3-dev
+    unixodbc-dev
+    graphviz
+    pandoc
+    biber
+    latexmk
+    lmodern
+    texlive-fonts-recommended
+    texlive-latex-base
+    texlive-latex-extra
+    texlive-latex-recommended
+    texlive-luatex
+    texlive-xetex
 )
 
 CMAKE_DEB_PKGS=(
     cmake
-    cmake-data
-    cmake-doc
-    cmake-format
-    cmake-qt-gui
-    dh-cmake
-    extra-cmake-modules
-    extra-cmake-modules-doc
 )
 
 TEXT_RENDERING_DEB_PKGS=(
+    libfontconfig1-dev
+    libfreetype-dev
     libfribidi-dev
     libharfbuzz-dev
-)
-
-R_APT_COMPAT_DEB_PKGS=(
-    r-cran-raster
-    r-cran-terra
-)
-
-V8_DEB_PKGS=(
-    libnode-dev
+    libjpeg-dev
+    libpng-dev
+    libtiff-dev
+    libwebp-dev
 )
 
 usage() {
@@ -141,46 +125,20 @@ code/R/PackagesToInstall.R.
 
 Notes:
   - It uses apt-get because apt does not provide a stable scripting interface.
-  - texlive-latex-base provides pdflatex for R Markdown and related packages.
-  - libnode-dev provides the Debian-family equivalent needed by jeroen/V8 when
-    Ubuntu/Debian nodejs packages own Node.
-  - NodeSource nodejs packages already own /usr/include/node/* and conflict
-    with Ubuntu libnode-dev; on those hosts this script skips libnode-dev and
-    code/R/PackagesToInstall.R builds jeroen/V8 with static libv8.
-  - r-cran-raster and r-cran-terra are intentionally installed from apt on
-    Jammy/Mint hosts because current CRAN terra does not compile against the
-    older distro GDAL stack used here.
-  - libsodium-dev is required for r-lib/gargle.
-  - libavfilter-dev provides FFmpeg libraries.
+  - The TeX package set is intentionally smaller than texlive-full, but includes
+    pdfLaTeX, LuaLaTeX, XeLaTeX, Biber, and common R Markdown dependencies.
+  - Database headers cover DBI backends for ODBC, PostgreSQL, MariaDB/MySQL,
+    and SQLite.
+  - Text and image headers support ragg, systemfonts, textshaping, and the
+    tidyverse reporting stack.
 **********************************************
 NOTES
-}
-
-nodejs_package_version() {
-    dpkg-query -W -f='${Version}' nodejs 2>/dev/null || true
-}
-
-has_nodesource_nodejs() {
-    local nodejs_version=''
-
-    nodejs_version="$(nodejs_package_version)"
-    [[ "${nodejs_version}" == *nodesource* ]]
-}
-
-v8_deb_packages() {
-    if has_nodesource_nodejs; then
-        return 0
-    fi
-
-    printf '%s\n' "${V8_DEB_PKGS[@]}"
 }
 
 all_packages() {
     printf '%s\n' "${CMAKE_DEB_PKGS[@]}"
     printf '%s\n' "${TEXT_RENDERING_DEB_PKGS[@]}"
     printf '%s\n' "${R_DEB_PKGS[@]}"
-    printf '%s\n' "${R_APT_COMPAT_DEB_PKGS[@]}"
-    v8_deb_packages
 }
 
 check_required_commands() {
@@ -217,39 +175,6 @@ check_required_commands() {
     fi
 
     return 0
-}
-
-check_node_v8_strategy() {
-    local nodejs_header_owner=''
-    local nodejs_version=''
-
-    print_section 'Checking Node/V8 dependency strategy'
-
-    nodejs_version="$(nodejs_package_version)"
-
-    if [[ -z "${nodejs_version}" ]]; then
-        printf 'No dpkg-managed nodejs package detected; apt will install libnode-dev for jeroen/V8.\n'
-        return 0
-    fi
-
-    printf 'dpkg nodejs version: %s\n' "${nodejs_version}"
-
-    if has_nodesource_nodejs; then
-        nodejs_header_owner="$(dpkg-query -S /usr/include/node/common.gypi 2>/dev/null || true)"
-        printf 'Node header owner: %s\n' "${nodejs_header_owner:-<not owned>}"
-        cat <<'EOF'
-Detected NodeSource nodejs. Skipping Ubuntu libnode-dev because both packages
-own files under /usr/include/node, which causes dpkg overwrite failures.
-
-For jeroen/V8, use:
-  Rscript code/R/PackagesToInstall.R --v8-mode auto
-
-The R installer defaults to auto mode and will build V8 with DOWNLOAD_STATIC_LIBV8=1.
-EOF
-        return 0
-    fi
-
-    printf 'NodeSource nodejs not detected; apt will manage libnode-dev for jeroen/V8.\n'
 }
 
 check_debian_family() {
@@ -413,8 +338,6 @@ run_preflight() {
         failures=1
     fi
 
-    check_node_v8_strategy
-
     if ! check_texlive_shadowing; then
         failures=1
     fi
@@ -456,21 +379,9 @@ install_package_group() {
 }
 
 run_installs() {
-    local v8_pkgs=()
-
     install_package_group 'CMake packages' "${CMAKE_DEB_PKGS[@]}"
     install_package_group 'text rendering packages' "${TEXT_RENDERING_DEB_PKGS[@]}"
     install_package_group 'R system dependency packages' "${R_DEB_PKGS[@]}"
-    install_package_group 'apt-managed R compatibility packages' "${R_APT_COMPAT_DEB_PKGS[@]}"
-
-    mapfile -t v8_pkgs < <(v8_deb_packages)
-    if [[ "${#v8_pkgs[@]}" -eq 0 ]]; then
-        print_section 'Skipping Ubuntu libnode-dev'
-        printf 'NodeSource nodejs is installed; jeroen/V8 will use static libv8 from the R installer.\n'
-        return 0
-    fi
-
-    install_package_group 'Node/V8 system dependency packages' "${v8_pkgs[@]}"
 }
 
 run_main() {
